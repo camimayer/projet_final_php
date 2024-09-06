@@ -1,10 +1,6 @@
 <div class="container">
     <h1>Inscription</h1>
 
-    <?php if ($success): ?>
-        <p class="success">Inscription réussie!</p>
-    <?php endif; ?>
-
     <?php if (!empty($errors)): ?>
         <div class="errors">
             <?php foreach ($errors as $error): ?>
@@ -13,6 +9,7 @@
         </div>
     <?php endif; ?>
 
+    <!-- Formulário de inscrição -->
     <form action="index.php" method="post">
         <label for="courriel1">Adresse de courriel 1:</label>
         <input type="email" id="courriel1" name="courriel1" required>
@@ -27,5 +24,13 @@
         <input type="password" id="password2" name="password2" required>
 
         <button type="submit">Soumettre</button>
+
+        <?php if ($success): ?>
+        <p class="success">Inscription réussie!</p>
+        <!-- Botão para redirecionar para a página de login -->
+        <a href="login.php">
+            <button type="button">Aller à la connexion</button>
+        </a>
+    <?php endif; ?>
     </form>
 </div>
