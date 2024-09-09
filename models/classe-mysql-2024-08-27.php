@@ -93,25 +93,33 @@ class mysql
    */
    function creeTable($strNomTable, ...$champs)
    {
-      // Construire la requête SQL pour créer la table
-      $this->requete = "CREATE TABLE $strNomTable (";
-      $this->requete .= implode(", ", $champs);
-      $this->requete .= ")";
+      // Vérifier si la table existe déjà
+      $this->requete = "SHOW TABLES LIKE '$strNomTable'";
+      $result = mysqli_query($this->cBD, $this->requete);
 
-      // Exécuter la requête
-      if (mysqli_query($this->cBD, $this->requete)) {
-         $this->OK = true;
+      if (mysqli_num_rows($result) == 0) {
+         // Construire la requête SQL pour créer la table si elle n'existe pas
+         $this->requete = "CREATE TABLE $strNomTable (";
+         $this->requete .= implode(", ", $champs);
+         $this->requete .= ")";
+
+         // Exécuter la requête
+         if (mysqli_query($this->cBD, $this->requete)) {
+            $this->OK = true;
+         } else {
+            $this->OK = false;
+            echo "Erreur lors de la création de la table: " . mysqli_error($this->cBD);
+         }
       } else {
-         $this->OK = false;
-         echo "Erreur lors de la création de la table: " . mysqli_error($this->cBD);
+         echo "La table $strNomTable existe déjà.";
       }
    }
    /*
-   |----------------------------------------------------------------------------------|
-   | creeTableGenerique
-   | Crée une table avec une structure générique
-   |----------------------------------------------------------------------------------|
-   */
+ |----------------------------------------------------------------------------------|
+ | creeTableGenerique
+ | Crée une table avec une structure générique
+ |----------------------------------------------------------------------------------|
+ */
    function creeTableGenerique($strNomTable, $strDefinitions, $strCles)
    {
       // Initialiser la requête SQL
