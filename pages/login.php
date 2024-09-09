@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['Prenom'] = $loginResult['prenom'];
 
             // Rediriger l'utilisateur vers la page de profil
-            header("Location: profil_utilisateur.php");
+            header("Location: listeAnnonces.php");
             exit();
         } else {
             // Si la connexion échoue, ajouter un message d'erreur
