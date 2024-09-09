@@ -36,7 +36,7 @@ class DatabaseManager
             $user = $result->fetch_assoc();
 
             // Vérifier le mot de passe
-            if (password_verify($password, $user['MotDePasse'])) {
+            if ($password == $user['MotDePasse']) {
                 // Si le mot de passe est correct, retourner les informations de l'utilisateur
                 return [
                     'success' => true,
