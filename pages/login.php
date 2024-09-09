@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../databasemanager.php';
-require_once '../config/localhost.php';
+require_once '../databasemanager.php'; // Charger le fichier DatabaseManager
 
+$pathToCss = "../styles/style.css";
 
 $dbManager = new DatabaseManager();
 
@@ -12,25 +12,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $courriel = trim($_POST['courriel']);
     $password = trim($_POST['password']);
 
-    // Validação do email
+    // Validation de l'adresse e-mail
     if (!filter_var($courriel, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "L'adresse de courriel est invalide.";
     }
 
     if (empty($errors)) {
-        // Chamar a função loginUser
+        // Appeler la fonction loginUser pour vérifier les informations d'identification
         $loginResult = $dbManager->loginUser($courriel, $password);
 
         if ($loginResult['success']) {
-            // Armazenar os dados do usuário na sessão
+            // Si la connexion est réussie, stocker les informations dans la session
             $_SESSION['Courriel'] = $courriel;
             $_SESSION['Nom'] = $loginResult['nom'];
             $_SESSION['Prenom'] = $loginResult['prenom'];
 
-            // Redirecionar para a página de perfil do usuário
+            // Rediriger l'utilisateur vers la page de profil
             header("Location: profil_utilisateur.php");
             exit();
         } else {
+            // Si la connexion échoue, ajouter un message d'erreur
             $errors[] = $loginResult['message'];
         }
     }
@@ -44,13 +45,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?php echo $pathToCss; ?>">
 </head>
 
 <body>
     <div class="container">
+        <!-- Titre de la page -->
         <h1>Connexion</h1>
 
+        <!-- Affichage des erreurs si elles existent -->
         <?php if (!empty($errors)): ?>
             <div class="errors">
                 <?php foreach ($errors as $error): ?>
@@ -59,21 +62,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         <?php endif; ?>
 
+        <!-- Formulaire de connexion -->
         <form action="login.php" method="post">
-            <label for="courriel">Adresse de courriel:</label>
+            <label for="courriel">Email:</label>
             <input type="email" id="courriel" name="courriel" required>
 
             <label for="password">Mot de passe:</label>
             <input type="password" id="password" name="password" required>
 
-            <button type="submit">Se connecter</button>
+            <!-- Liens pour créer un compte et récupérer le mot de passe -->
+            <div class="links">
+                <a href="signup.php">Créer un compte</a>
+                <a href="forgot_password.php">Mot de passe oublié</a>
+            </div>
+
+            <!-- Bouton de connexion -->
+            <button type="submit" class="btn btn-blue">Connexion</button>
         </form>
     </div>
 </body>
 
 </html>
-
-<?php
-// Fechar conexão
-$dbManager->closeConnection();
-?>
