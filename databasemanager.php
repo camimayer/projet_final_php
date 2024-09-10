@@ -4,8 +4,6 @@ require_once '../config/localhost.php';
 class DatabaseManager
 {
     private $connection;
-    public $requete = "";  // Requête exécutée
-    public $OK = false;    // État de l'opération
 
     // Connexion à la base de données
     public function __construct()
@@ -14,8 +12,6 @@ class DatabaseManager
 
         if ($this->connection->connect_error) {
             die("Connexion échouée: " . $this->connection->connect_error);
-        } else {
-            //echo "</br>Connexion réussie à la base de données MySQL.";
         }
     }
 
@@ -23,93 +19,106 @@ class DatabaseManager
     {
         return $this->connection;
     }
-    public function loginUser($courriel, $password)
+
+    // Méthode pour créer toutes les tables nécessaires
+    public function createTables()
     {
-        // Préparer la requête SQL pour obtenir les données de l'utilisateur à partir de l'adresse e-mail
-        $stmt = $this->connection->prepare("SELECT NoUtilisateur, Courriel, MotDePasse, Nom, Prenom FROM utilisateurs WHERE Courriel = ?");
-        $stmt->bind_param("s", $courriel);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        // Création de la table 'utilisateurs'
+        $sql = "CREATE TABLE IF NOT EXISTS utilisateurs (
+            NoUtilisateur INT(3) AUTO_INCREMENT PRIMARY KEY,
+            Courriel VARCHAR(50) NOT NULL UNIQUE,
+            MotDePasse VARCHAR(15) NOT NULL,
+            Creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            NbConnexions INT(4) DEFAULT 0,
+            Statut INT(1) NOT NULL CHECK (Statut IN (0, 1, 2, 3, 4, 5)),
+            NoEmpl INT(4),
+            Nom VARCHAR(25) NOT NULL,
+            Prenom VARCHAR(20) NOT NULL,
+            NoTelMaison VARCHAR(15),
+            NoTelTravail VARCHAR(21),
+            NoTelCellulaire VARCHAR(15),
+            Modification DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            AutresInfos VARCHAR(50)
+        )";
 
-        // Vérifier si l'utilisateur a été trouvé
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+        if ($this->connection->query($sql) === TRUE) {
+            echo "Table 'utilisateurs' créée avec succès.<br>";
+        } else {
+            echo "Erreur lors de la création de la table 'utilisateurs': " . $this->connection->error . "<br>";
+        }
 
-            // Vérifier le mot de passe
-            if ($password == $user['MotDePasse']) {
-                // Si le mot de passe est correct, retourner les informations de l'utilisateur
-                return [
-                    'success' => true,
-                    'nom' => $user['Nom'],
-                    'prenom' => $user['Prenom']
-                ];
+        // Création de la table 'connexions'
+        $sql = "CREATE TABLE IF NOT EXISTS connexions (
+            NoConnexion INT(4) AUTO_INCREMENT PRIMARY KEY,
+            NoUtilisateur INT(3),
+            Connexion DATETIME NOT NULL,
+            Deconnexion DATETIME,
+            FOREIGN KEY (NoUtilisateur) REFERENCES utilisateurs(NoUtilisateur)
+        )";
+
+        if ($this->connection->query($sql) === TRUE) {
+            echo "Table 'connexions' créée avec succès.<br>";
+        } else {
+            echo "Erreur lors de la création de la table 'connexions': " . $this->connection->error . "<br>";
+        }
+
+        // Création de la table 'categories'
+        $sql = "CREATE TABLE IF NOT EXISTS categories (
+                NoCategorie INT(1) AUTO_INCREMENT PRIMARY KEY,
+                Description VARCHAR(20) NOT NULL
+            )";
+
+        if ($this->connection->query($sql) === TRUE) {
+            echo "Table 'categories' créée avec succès.<br>";
+            $this->insertDefaultCategories(); // Inserta las categorías predeterminadas
+        } else {
+            echo "Erreur lors de la création de la table 'categories': " . $this->connection->error . "<br>";
+        }
+
+        // Création de la table 'annonces'
+        $sql = "CREATE TABLE IF NOT EXISTS annonces (
+            NoAnnonce INT(4) AUTO_INCREMENT PRIMARY KEY,
+            NoUtilisateur INT(3),
+            Parution DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            Categorie INT(1),
+            DescriptionAbregee VARCHAR(50),
+            DescriptionComplete VARCHAR(250),
+            Prix DECIMAL(10, 2) DEFAULT 0.00,
+            Photo VARCHAR(50),
+            MiseAJour DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            Etat INT(1) CHECK (Etat IN (1, 2, 3)),
+            FOREIGN KEY (NoUtilisateur) REFERENCES utilisateurs(NoUtilisateur),
+            FOREIGN KEY (Categorie) REFERENCES categories(NoCategorie)
+        )";
+
+        if ($this->connection->query($sql) === TRUE) {
+            echo "Table 'annonces' créée avec succès.<br>";
+        } else {
+            echo "Erreur lors de la création de la table 'annonces': " . $this->connection->error . "<br>";
+        }
+    }
+
+    // Méthode pour enregistrer un utilisateur
+    public function saveUser($courriel, $password)
+    {
+        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse, Creation, NbConnexions, Statut) 
+                                            VALUES (?, ?, NOW(), 0, 0)");
+        if ($stmt) {
+            $stmt->bind_param("ss", $courriel, $password);
+            if ($stmt->execute()) {
+                return true; // Inscription réussie
             } else {
-                // Si le mot de passe est incorrect
-                return [
-                    'success' => false,
-                    'message' => "Mot de passe incorrect."
-                ];
+                return false; // Échec de l'inscription
             }
+            $stmt->close();
         } else {
-            // Si l'utilisateur n'est pas trouvé
-            return [
-                'success' => false,
-                'message' => "Aucun utilisateur trouvé avec cette adresse e-mail."
-            ];
+            return false; // Échec de la préparation de la requête
         }
-    }
-
-    // Méthode pour créer une table
-    public function createTable($tableName, ...$fields)
-    {
-        // Vérifier si la table existe déjà
-        $checkQuery = "SHOW TABLES LIKE '$tableName'";
-        $result = $this->connection->query($checkQuery);
-
-        if ($result->num_rows == 0) {
-            // Construire la requête SQL pour créer la table
-            $this->requete = "CREATE TABLE $tableName (" . implode(", ", $fields) . ")";
-            if ($this->connection->query($this->requete) === TRUE) {
-                echo "Table '$tableName' créée avec succès.<br>";
-                $this->OK = true;
-            } else {
-                echo "Erreur lors de la création de la table '$tableName': " . $this->connection->error . "<br>";
-                $this->OK = false;
-            }
-        } else {
-            //echo "La table '$tableName' existe déjà.<br>";
-            $this->OK = false;
-        }
-    }
-
-    // Méthode pour supprimer une table
-    public function dropTable($tableName)
-    {
-        $this->requete = "DROP TABLE IF EXISTS $tableName";
-        if ($this->connection->query($this->requete) === TRUE) {
-            echo "Table '$tableName' supprimée avec succès.<br>";
-            $this->OK = true;
-        } else {
-            echo "Erreur lors de la suppression de la table '$tableName': " . $this->connection->error . "<br>";
-            $this->OK = false;
-        }
-    }
-
-    // Méthode saveUser pour sauvegarder un utilisateur
-    public function saveUser($email, $password)
-    {
-        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse) VALUES (?, ?)");
-        // $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt->bind_param("ss", $email, $password);
-        $result = $stmt->execute();
-        $stmt->close();
-        return $result;
     }
 
     // Méthode pour insérer un enregistrement générique
     public function insertRecord($tableName, ...$values)
     {
-        // Échapper les valeurs pour éviter les injections SQL
         $escapedValues = array_map(function ($value) {
             if (is_null($value)) {
                 return 'NULL';
@@ -130,19 +139,63 @@ class DatabaseManager
 
         return $this->OK;
     }
-
-    // Méthode pour afficher des informations sur la base de données
-    public function displayTableInfo()
+    public function insertDefaultCategories()
     {
-        $result = $this->connection->query("SHOW TABLES");
-        if ($result) {
-            while ($row = $result->fetch_row()) {
-                echo "Table: $row[0]<br>";
+        $result = $this->connection->query("SELECT COUNT(*) as count FROM categories");
+        $row = $result->fetch_assoc();
+
+        if ($row['count'] == 0) {
+            $sql = "INSERT INTO categories (NoCategorie, Description) VALUES
+            (1, 'Location'),
+            (2, 'Recherche'),
+            (3, 'À vendre'),
+            (4, 'À donner'),
+            (5, 'Service offert'),
+            (6, 'Autre')";
+
+            if ($this->connection->query($sql) === TRUE) {
+                echo "Catégories prédéfinies insérées avec succès.<br>";
+            } else {
+                echo "Erreur lors de l'insertion des catégories: " . $this->connection->error . "<br>";
             }
         } else {
-            echo "Erreur lors de la récupération des tables: " . $this->connection->error;
+            echo "Les catégories existent déjà.<br>";
         }
     }
+
+    public function loginUser($courriel, $password)
+    {
+        // Préparer la requête pour vérifier les identifiants
+        $stmt = $this->connection->prepare("SELECT MotDePasse, Nom, Prenom FROM utilisateurs WHERE Courriel = ?");
+        $stmt->bind_param("s", $courriel);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Vérifier si l'utilisateur a été trouvé
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+
+            // Vérifier si le mot de passe correspond
+            if ($password == $user['MotDePasse']) {
+                return [
+                    'success' => true,
+                    'nom' => $user['Nom'],
+                    'prenom' => $user['Prenom']
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => "Mot de passe incorrect."
+                ];
+            }
+        } else {
+            return [
+                'success' => false,
+                'message' => "Aucun utilisateur trouvé avec cette adresse e-mail."
+            ];
+        }
+    }
+
 
     // Fermer la connexion à la base de données
     public function closeConnection()
