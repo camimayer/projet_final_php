@@ -29,7 +29,7 @@ $totalResult = $dbManager->getConnection()->query("SELECT COUNT(*) AS total FROM
 $totalAnnonces = $totalResult->fetch_assoc()['total'];
 
 // Consulta para obtener las últimas 10 anuncios
-$query = "SELECT annonces.*, utilisateurs.Nom, utilisateurs.Prenom 
+$query = "SELECT annonces.*, utilisateurs.Nom, utilisateurs.Prenom, utilisateurs.Courriel 
           FROM annonces 
           JOIN utilisateurs ON annonces.NoUtilisateur = utilisateurs.NoUtilisateur 
           WHERE Etat = 1 $searchQuery 
@@ -48,6 +48,60 @@ $result = $dbManager->getConnection()->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des annonces</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos para el contenedor principal */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        /* Estilos para las cartas */
+        .card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            flex: 1 1 calc(20% - 20px);
+            /* 5 cartas por fila, con márgenes */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card img {
+            width: 144px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Estilos adicionales para asegurar que se vean bien en dispositivos móviles */
+        @media (max-width: 1200px) {
+            .card {
+                flex: 1 1 calc(33.33% - 20px);
+                /* 3 cartas por fila en pantallas medianas */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                flex: 1 1 calc(50% - 20px);
+                /* 2 cartas por fila en pantallas pequeñas */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .card {
+                flex: 1 1 100%;
+                /* 1 carta por fila en pantallas muy pequeñas */
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -62,50 +116,40 @@ $result = $dbManager->getConnection()->query($query);
             <button type="submit">Rechercher</button>
         </form>
 
-        <!-- Tabla de anuncios -->
-        <table>
-            <thead>
-                <tr>
-                    <th>No séquentiel</th>
-                    <th>Numéro de l'annonce</th>
-                    <th>Date de parution</th>
-                    <th>Auteur</th>
-                    <th>Catégorie</th>
-                    <th>Description abrégée</th>
-                    <th>Prix</th>
-                    <th>Photo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($result->num_rows > 0): ?>
-                    <?php while ($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo $row['NoAnnonce']; ?></td>
-                            <td><?php echo $row['NoAnnonce']; ?></td>
-                            <td><?php echo date('Y-m-d, H:i', strtotime($row['Parution'])); ?></td>
-                            <td>
-                                <?php if ($_SESSION['Courriel'] === $row['Courriel']): ?>
+        <!-- Contenedor de las cartas -->
+        <div class="card-container">
+            <?php if ($result->num_rows > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <div class="card">
+                        <div>
+                            <img src="../photos-annonce/<?php echo $row['Photo']; ?>" alt="Photo annonce">
+                        </div>
+                        <div>
+                            <p><strong>No séquentiel:</strong> <?php echo $row['NoAnnonce']; ?></p>
+                            <p><strong>Numéro de l'annonce:</strong> <?php echo $row['NoAnnonce']; ?></p>
+                            <p><strong>Date de parution:</strong> <?php echo date('Y-m-d H:i', strtotime($row['Parution'])); ?>
+                            </p>
+                            <p><strong>Auteur:</strong>
+                                <?php if (isset($row['Courriel']) && $_SESSION['Courriel'] === $row['Courriel']): ?>
                                     <?php echo $row['Nom'] . ' ' . $row['Prenom']; ?>
                                 <?php else: ?>
                                     <a
                                         href="profil_utilisateur.php?id=<?php echo $row['NoUtilisateur']; ?>"><?php echo $row['Nom'] . ' ' . $row['Prenom']; ?></a>
                                 <?php endif; ?>
-                            </td>
-                            <td><?php echo $row['Categorie']; ?></td>
-                            <td><a
+                            </p>
+                            <p><strong>Catégorie:</strong> <?php echo $row['Categorie']; ?></p>
+                            <p><strong>Description:</strong>
+                                <a
                                     href="detail_annonce.php?id=<?php echo $row['NoAnnonce']; ?>"><?php echo htmlspecialchars($row['DescriptionAbregee']); ?></a>
-                            </td>
-                            <td><?php echo $row['Prix'] ? $row['Prix'] . ' $' : 'N/A'; ?></td>
-                            <td><img src="photos-annonce/<?php echo $row['Photo']; ?>" width="144"></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="8">Aucune annonce trouvée.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                            </p>
+                            <p><strong>Prix:</strong> <?php echo $row['Prix'] ? $row['Prix'] . ' $' : 'N/A'; ?></p>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p>Aucune annonce trouvée.</p>
+            <?php endif; ?>
+        </div>
 
         <!-- Paginación -->
         <div class="pagination">

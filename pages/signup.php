@@ -6,27 +6,6 @@ require_once '../databasemanager.php';
 // Créer une instance de DatabaseManager
 $dbManager = new DatabaseManager();
 
-// Définir la structure de la table utilisateurs
-$champsUtilisateurs = [
-    "NoUtilisateur INT AUTO_INCREMENT",
-    "Courriel VARCHAR(50) NOT NULL UNIQUE",
-    "MotDePasse VARCHAR(255) NOT NULL",  // On utilise 255 pour stocker le mot de passe haché
-    "Creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-    "NbConnexions INT DEFAULT 0",
-    "Statut INT DEFAULT 0",  // 0 = En attente par défaut
-    "NoEmpl INT",
-    "Nom VARCHAR(25) NOT NULL",
-    "Prenom VARCHAR(20) NOT NULL",
-    "NoTelMaison VARCHAR(15)",
-    "NoTelTravail VARCHAR(21)",
-    "NoTelCellulaire VARCHAR(15)",
-    "Modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
-    "AutresInfos VARCHAR(50)",
-    "PRIMARY KEY (NoUtilisateur)"
-];
-
-// Vérifier et créer la table utilisateurs si elle n'existe pas
-$dbManager->createTable('utilisateurs', ...$champsUtilisateurs);
 
 // Initialiser les variables d'erreurs et de succès
 $errors = [];
