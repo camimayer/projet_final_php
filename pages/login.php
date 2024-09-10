@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['Courriel'] = $courriel;
             $_SESSION['Nom'] = $loginResult['nom'];
             $_SESSION['Prenom'] = $loginResult['prenom'];
+            $_SESSION['Statut'] = $loginResult['statut']; // Stocker le statut de l'utilisateur
 
             // Rediriger l'utilisateur vers la page de profil
             header("Location: listeAnnonces.php");

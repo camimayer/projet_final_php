@@ -43,6 +43,10 @@ $result = $dbManager->getConnection()->query($query);
 <!DOCTYPE html>
 <html lang="fr">
 
+<?php    
+    require_once 'header.php';
+?>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
