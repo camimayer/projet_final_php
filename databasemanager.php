@@ -99,8 +99,8 @@ class DatabaseManager
     public function saveUser($email, $password)
     {
         $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse) VALUES (?, ?)");
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt->bind_param("ss", $email, $hashedPassword);
+        // $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt->bind_param("ss", $email, $password);
         $result = $stmt->execute();
         $stmt->close();
         return $result;
