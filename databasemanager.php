@@ -166,7 +166,7 @@ class DatabaseManager
     public function loginUser($courriel, $password)
     {
         // Préparer la requête pour vérifier les identifiants
-        $stmt = $this->connection->prepare("SELECT MotDePasse, Nom, Prenom, Statut  FROM utilisateurs WHERE Courriel = ?");
+        $stmt = $this->connection->prepare("SELECT NoUtilisateur, MotDePasse, Nom, Prenom, Statut  FROM utilisateurs WHERE Courriel = ?");
         $stmt->bind_param("s", $courriel);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -181,7 +181,8 @@ class DatabaseManager
                     'success' => true,
                     'nom' => $user['Nom'],
                     'prenom' => $user['Prenom'],
-                    'statut' => $user['Statut'] // Récupérer le statut de l'utilisateur
+                    'statut' => $user['Statut'], // Récupérer le statut de l'utilisateur
+                    'noUtilisateur' => $user['NoUtilisateur']
                 ];
             } else {
                 return [

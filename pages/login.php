@@ -3,6 +3,8 @@ session_start();
 require_once '../databasemanager.php'; // Charger le fichier DatabaseManager
 
 $pathToCss = "../styles/style.css";
+$pagesTitle = "Équipe Camila/Ricardo/Silvia";
+$_SESSION['PagesTitle'] = $pagesTitle;
 
 $dbManager = new DatabaseManager();
 
@@ -27,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['Nom'] = $loginResult['nom'];
             $_SESSION['Prenom'] = $loginResult['prenom'];
             $_SESSION['Statut'] = $loginResult['statut']; // Stocker le statut de l'utilisateur
+            $_SESSION['NoUtilisateur'] = $loginResult['noUtilisateur'];
 
             // Rediriger l'utilisateur vers la page de profil
             header("Location: listeAnnonces.php");
@@ -45,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
+    <title><?php echo $pagesTitle; ?></title>
     <link rel="stylesheet" href="<?php echo $pathToCss; ?>">
 </head>
 
