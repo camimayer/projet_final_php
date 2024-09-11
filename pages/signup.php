@@ -1,13 +1,20 @@
 <?php
-// Inclusions des fichiers nécessaires
+// Incluir os arquivos do PHPMailer
+require '../librairies/PHPMailer/src/Exception.php';
+require '../librairies/PHPMailer/src/PHPMailer.php';
+require '../librairies/PHPMailer/src/SMTP.php';
+
+// Incluir o DatabaseManager
 require_once '../config/localhost.php';
 require_once '../databasemanager.php';
 
-// Créer une instance de DatabaseManager
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Criar uma instância de DatabaseManager
 $dbManager = new DatabaseManager();
 
-
-// Initialiser les variables d'erreurs et de succès
+// Inicializar as variáveis de erro e sucesso
 $errors = [];
 $success = false;
 
@@ -17,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST['password']);
     $passwordConfirm = trim($_POST['passwordConfirm']);
 
-    // Validation de l'adresse email
+    // Validação do email
     if (!filter_var($courriel, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "L'adresse de courriel est invalide.";
     }
@@ -26,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Les adresses de courriel ne correspondent pas.";
     }
 
-    // Validation du mot de passe
+    // Validação da senha
     if (strlen($password) < 5 || strlen($password) > 15) {
         $errors[] = "Le mot de passe doit contenir entre 5 et 15 caractères.";
     } elseif (preg_match('/[A-Z]/', $password)) {
@@ -40,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($errors)) {
-        // Vérifier si l'email existe déjà
+        // Verificar se o email já existe
         $stmt = $dbManager->getConnection()->prepare("SELECT NoUtilisateur FROM utilisateurs WHERE Courriel = ?");
         if ($stmt) {
             $stmt->bind_param("s", $courriel);
@@ -49,9 +56,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt->num_rows > 0) {
                 $errors[] = "L'adresse de courriel existe déjà.";
             } else {
-                // Enregistrer l'utilisateur dans la base de données
-                if ($dbManager->saveUser($courriel, $password)) {
+                // Gerar um token de verificação único
+                $token = bin2hex(random_bytes(50));
+
+                // Salvar o usuário no banco de dados com o token
+                if ($dbManager->saveUserWithToken($courriel, $password, $token)) {
                     $success = true;
+
+                    // Criar uma instância do PHPMailer
+                    $mail = new PHPMailer(true);
+                    try {
+                        // Configurações do servidor
+                        $mail->isSMTP();                                            // Enviar usando SMTP
+                        $mail->Host       = 'smtp.finmail.com';                      // Definir o servidor SMTP
+                        $mail->SMTPAuth   = true;                                   // Ativar autenticação SMTP
+                        $mail->Username   = 'jubileu@finmail.com';                // Email do remetente (SMTP)
+                        $mail->Password   = 'camilaflaviosilvia';                   // Senha SMTP
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;          // Habilitar criptografia TLS
+                        $mail->Port       = 587;                                   // Porta TCP para TLS
+
+                        // Destinatário
+                        $mail->setFrom('jubileu@finmail.com', 'App Name');        // Remetente do email
+                        $mail->addAddress($courriel);                                // Adicionar destinatário
+
+                        // Conteúdo do email
+                        $mail->isHTML(true);                                         // Definir formato do email para HTML
+                        $mail->Subject = 'Vérifiez votre adresse e-mail';
+                        $mail->Body    = "Merci de vous être inscrit. Cliquez sur ce lien pour vérifier votre adresse e-mail: 
+                        <a href='http://localhost/verify.php?token=$token'>Cliquez ici pour vérifier</a>";
+                        $mail->AltBody = "Merci de vous être inscrit. Copiez ce lien pour vérifier votre adresse e-mail: 
+                        http://localhost/verify.php?token=$token";
+
+                        // Enviar o email
+                        $mail->send();
+                        echo 'Email de vérification envoyé. Veuillez vérifier votre boîte de réception.';
+                    } catch (Exception $e) {
+                        $errors[] = "Erreur lors de l'envoi de l'email de vérification: {$mail->ErrorInfo}";
+                    }
                 } else {
                     $errors[] = "Une erreur est survenue lors de l'inscription.";
                 }
@@ -103,9 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit">Soumettre</button>
 
             <?php if ($success): ?>
-                <p class="success">Inscription réussie!</p>
-                <!-- Redirection vers la page de connexion -->
-                <a href="login.php" class="btn btn-blue">Aller à la connexion</a>
+                <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
             <?php endif; ?>
         </form>
     </div>

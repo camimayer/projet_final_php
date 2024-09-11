@@ -38,8 +38,10 @@ class DatabaseManager
             NoTelTravail VARCHAR(21),
             NoTelCellulaire VARCHAR(15),
             Modification DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            AutresInfos VARCHAR(50)
+            AutresInfos VARCHAR(50),
+            Token VARCHAR(255)
         )";
+        
 
         if ($this->connection->query($sql) === TRUE) {
             echo "Table 'utilisateurs' créée avec succès.<br>";
@@ -99,22 +101,32 @@ class DatabaseManager
     }
 
     // Méthode pour enregistrer un utilisateur
-    public function saveUser($courriel, $password)
+    public function saveUserWithToken($courriel, $password, $token)
     {
-        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse, Creation, NbConnexions, Statut) 
-                                            VALUES (?, ?, NOW(), 0, 0)");
-        if ($stmt) {
-            $stmt->bind_param("ss", $courriel, $password);
-            if ($stmt->execute()) {
-                return true; // Inscription réussie
-            } else {
-                return false; // Échec de l'inscription
-            }
-            $stmt->close();
-        } else {
-            return false; // Échec de la préparation de la requête
+        // Preparar a instrução SQL
+        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse, Creation, NbConnexions, Statut, Token) 
+                                            VALUES (?, ?, NOW(), 0, 0, ?)");
+        
+        if ($stmt === false) {
+            echo "Erreur lors de la préparation de la requête: " . $this->connection->error;
+            return false;
         }
+        
+        // Vincular os parâmetros
+        $stmt->bind_param("sss", $courriel, $password, $token);
+        
+        // Executar a consulta
+        if ($stmt->execute()) {
+            return true; // Sucesso na inscrição
+        } else {
+            echo "Erreur lors de l'inscription: " . $stmt->error;
+            return false; // Falha na inscrição
+        }
+    
+        $stmt->close();
     }
+    
+
 
     // Méthode pour insérer un enregistrement générique
     public function insertRecord($tableName, ...$values)
@@ -204,5 +216,6 @@ class DatabaseManager
         $this->connection->close();
         echo "Déconnexion réussie.";
     }
+
 }
 ?>
