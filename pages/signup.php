@@ -62,38 +62,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Salvar o usuário no banco de dados com o token
                 if ($dbManager->saveUserWithToken($courriel, $password, $token)) {
                     $success = true;
-
+                
                     // Criar uma instância do PHPMailer
                     $mail = new PHPMailer(true);
                     try {
-                        // Configurações do servidor
-                        $mail->isSMTP();                                            // Enviar usando SMTP
-                        $mail->Host       = 'mx1.finmail.com';                      // Definir o servidor SMTP
-                        $mail->SMTPAuth   = true;                                   // Ativar autenticação SMTP
-                        $mail->Username   = 'jubileu@finmail.com';                // Email do remetente (SMTP)
-                        $mail->Password   = 'camilaflaviosilvia';                   // Senha SMTP
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            // Habilitar criptografia SSL
-                        $mail->Port       = 465;                                  // Porta TCP para TLS
-
+                        // Configurações do servidor SMTP (usando SendGrid)
+                        $mail->isSMTP();                               
+                        $mail->Host       = '';               
+                        $mail->SMTPAuth   = true;                     
+                        $mail->Username   = '';                         
+                        $mail->Password   = '';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Habilitar criptografia TLS
+                        $mail->Port       = 587;                                    // Porta TCP para TLS
+                
                         // Destinatário
-                        $mail->setFrom('jubileu@finmail.com', 'App Name');        // Remetente do email
-                        $mail->addAddress($courriel);                                // Adicionar destinatário
-
+                        $mail->setFrom('camicatmayer@gmail.com', 'App Name');          // Remetente do email (mudar se necessário)
+                        $mail->addAddress($courriel);                               // Adicionar destinatário
+                
                         // Conteúdo do email
-                        $mail->isHTML(true);                                         // Definir formato do email para HTML
+                        $mail->isHTML(true);                                        // Definir formato do email para HTML
                         $mail->Subject = 'Vérifiez votre adresse e-mail';
                         $mail->Body    = "Merci de vous être inscrit. Cliquez sur ce lien pour vérifier votre adresse e-mail: 
-                        <a href='http://localhost/verify.php?token=$token'>Cliquez ici pour vérifier</a>";
+                        <a href='http://localhost/projet_final_php/config/verify.php?token=$token'>Cliquez ici pour vérifier</a>";
                         $mail->AltBody = "Merci de vous être inscrit. Copiez ce lien pour vérifier votre adresse e-mail: 
                         http://localhost/verify.php?token=$token";
-
+                
                         // Enviar o email
                         $mail->send();
-                        echo 'Email de vérification envoyé. Veuillez vérifier votre boîte de réception.';
                     } catch (Exception $e) {
                         $errors[] = "Erreur lors de l'envoi de l'email de vérification: {$mail->ErrorInfo}";
                     }
-                } else {
+                }
+                 else {
                     $errors[] = "Une erreur est survenue lors de l'inscription.";
                 }
             }

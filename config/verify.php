@@ -1,5 +1,5 @@
 <?php
-require_once 'databasemanager.php';
+require_once '../databasemanager.php';
 
 $dbManager = new DatabaseManager();
 
@@ -26,3 +26,20 @@ if (isset($_GET['token'])) {
     $stmt->close();
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification</title>
+</head>
+<body>
+
+    <br><br>
+    <form action="../pages/login.php" method="get">
+        <button type="submit">Aller à la page de connexion</button>
+    </form>
+
+</body>
+</html>

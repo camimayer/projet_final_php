@@ -187,6 +187,14 @@ class DatabaseManager
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
+        // Vérifier si le compte a été activé (Statut != 0)
+        if ($user['Statut'] == 0) {
+            return [
+                'success' => false,
+                'message' => "Votre compte n'a pas encore été vérifié. Veuillez vérifier votre e-mail pour activer votre compte."
+            ];
+        }
+
         // Vérifier si le mot de passe correspond
         if ($password == $user['MotDePasse']) {
             // Vérifier si l'utilisateur a une connexion active (Deconnexion est NULL)
@@ -235,6 +243,7 @@ class DatabaseManager
         ];
     }
 }
+
 
 
 public function updateLogoutTime($noUtilisateur)
