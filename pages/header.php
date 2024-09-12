@@ -22,7 +22,7 @@
                         <a href="ListeUtilisateur.php" class="nav-item nav-link text-light">Liste des utilisateurs</a>
                         <a href="NettoyageBD.php" class="nav-item nav-link text-light">Nettoyage de la base de données</a>
 <?php 
-                    elseif ($_SESSION['Statut'] == 0): // Autres profilss 
+                    else : // Autres profilss 
 ?>
                         <a href="gestionAnnonces.php" class="nav-item nav-link text-light">Gestion de vos annonces</a>
                         <a href="miseAJourProfil.php" class="nav-item nav-link text-light">Modification du profil</a>

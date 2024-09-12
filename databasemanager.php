@@ -30,7 +30,7 @@ class DatabaseManager
             MotDePasse VARCHAR(15) NOT NULL,
             Creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             NbConnexions INT(4) DEFAULT 0,
-            Statut INT(1) NOT NULL CHECK (Statut IN (0, 1, 2, 3, 4, 5)),
+            Statut INT(1) NOT NULL CHECK (Statut IN (0, 1, 2, 3, 4, 5, 9)),
             NoEmpl INT(4),
             Nom VARCHAR(25) NOT NULL,
             Prenom VARCHAR(20) NOT NULL,
@@ -45,6 +45,17 @@ class DatabaseManager
 
         if ($this->connection->query($sql) === TRUE) {
             echo "Table 'utilisateurs' créée avec succès.<br>";
+            // Vérifie si l'utilisateur admin est déjà enregistré
+            $result = $this->connection->query("SELECT COUNT(*) as count FROM utilisateurs WHERE Courriel = 'admin@gmail.com'");
+            $row = $result->fetch_assoc();
+            if ($row['count'] == 0) {
+                //  Enregistre l'utilisateur administrateur dans la base de données avec un token
+                $token = bin2hex(random_bytes(50));
+                if ( $this->saveUserWithToken("admin@gmail.com", "Secret123", $token)) {
+                    echo "Utilisateur Admin créée avec succès.<br>";
+                    $result = $this->connection->query("UPDATE utilisateurs SET Statut = 1 WHERE Courriel = 'admin@gmail.com'");
+                }
+            }   
         } else {
             echo "Erreur lors de la création de la table 'utilisateurs': " . $this->connection->error . "<br>";
         }
@@ -273,7 +284,24 @@ public function updateLogoutTime($noUtilisateur)
     $stmt->close();
 }
 
-
+        // Fonction pour récupérer les données utilisateur par e-mail
+        public function getUserData($email) {
+            $query = "SELECT * FROM utilisateurs WHERE Courriel = ?";
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_assoc();
+        }
+    
+        // Fonction pour mettre à jour le profil utilisateur
+        public function updateUser($email, $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC) {
+            $dateModification = date('Y-m-d H:i:s');
+            $query = "UPDATE utilisateurs SET Statut = ?, NoEmpl = ?, Nom = ?, Prenom = ?, NoTelMaison = ?, NoTelTravail = ?, NoTelCellulaire = ?, Modification = ? WHERE Courriel = ?";
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("iisssssss", $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC, $dateModification, $email);
+            return $stmt->execute();
+        }
 
 
     // Fermer la connexion à la base de données
