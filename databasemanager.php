@@ -44,7 +44,7 @@ class DatabaseManager
 
 
         if ($this->connection->query($sql) === TRUE) {
-            echo "Table 'utilisateurs' créée avec succès.<br>";
+            // echo "Table 'utilisateurs' créée avec succès.<br>";
             // Vérifie si l'utilisateur admin est déjà enregistré
             $result = $this->connection->query("SELECT COUNT(*) as count FROM utilisateurs WHERE Courriel = 'admin@gmail.com'");
             $row = $result->fetch_assoc();
