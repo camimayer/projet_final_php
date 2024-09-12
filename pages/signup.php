@@ -68,12 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     try {
                         // Configurações do servidor
                         $mail->isSMTP();                                            // Enviar usando SMTP
-                        $mail->Host       = 'smtp.finmail.com';                      // Definir o servidor SMTP
+                        $mail->Host       = 'mx1.finmail.com';                      // Definir o servidor SMTP
                         $mail->SMTPAuth   = true;                                   // Ativar autenticação SMTP
                         $mail->Username   = 'jubileu@finmail.com';                // Email do remetente (SMTP)
                         $mail->Password   = 'camilaflaviosilvia';                   // Senha SMTP
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;          // Habilitar criptografia TLS
-                        $mail->Port       = 587;                                   // Porta TCP para TLS
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            // Habilitar criptografia SSL
+                        $mail->Port       = 465;                                  // Porta TCP para TLS
 
                         // Destinatário
                         $mail->setFrom('jubileu@finmail.com', 'App Name');        // Remetente do email

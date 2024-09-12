@@ -8,6 +8,7 @@ $dbManager = new DatabaseManager();
 
 $errors = [];
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $courriel = trim($_POST['courriel']);
     $password = trim($_POST['password']);
@@ -27,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['Nom'] = $loginResult['nom'];
             $_SESSION['Prenom'] = $loginResult['prenom'];
             $_SESSION['Statut'] = $loginResult['statut']; // Stocker le statut de l'utilisateur
+            $_SESSION['NoUtilisateur'] = $loginResult['noUtilisateur'];
 
             // Rediriger l'utilisateur vers la page de profil
             header("Location: listeAnnonces.php");

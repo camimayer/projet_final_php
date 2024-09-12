@@ -176,45 +176,101 @@ class DatabaseManager
     }
 
     public function loginUser($courriel, $password)
-    {
-        // Préparer la requête pour vérifier les identifiants
-        $stmt = $this->connection->prepare("SELECT MotDePasse, Nom, Prenom, Statut  FROM utilisateurs WHERE Courriel = ?");
-        $stmt->bind_param("s", $courriel);
-        $stmt->execute();
-        $result = $stmt->get_result();
+{
+    // Préparer la requête pour vérifier les identifiants
+    $stmt = $this->connection->prepare("SELECT NoUtilisateur, MotDePasse, Nom, Prenom, Statut, NbConnexions FROM utilisateurs WHERE Courriel = ?");
+    $stmt->bind_param("s", $courriel);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        // Vérifier si l'utilisateur a été trouvé
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+    // Vérifier si l'utilisateur a été trouvé
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
 
-            // Vérifier si le mot de passe correspond
-            if ($password == $user['MotDePasse']) {
-                return [
-                    'success' => true,
-                    'nom' => $user['Nom'],
-                    'prenom' => $user['Prenom'],
-                    'statut' => $user['Statut'] // Récupérer le statut de l'utilisateur
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => "Mot de passe incorrect."
-                ];
+        // Vérifier si le mot de passe correspond
+        if ($password == $user['MotDePasse']) {
+            // Vérifier si l'utilisateur a une connexion active (Deconnexion est NULL)
+            $stmt = $this->connection->prepare("SELECT NoConnexion FROM connexions WHERE NoUtilisateur = ? AND Deconnexion IS NULL ORDER BY NoConnexion DESC LIMIT 1");
+            $stmt->bind_param("i", $user['NoUtilisateur']);
+            $stmt->execute();
+            $activeConnectionResult = $stmt->get_result();
+
+            if ($activeConnectionResult->num_rows > 0) {
+                // Si une connexion active existe, mettre à jour l'heure de déconnexion
+                $activeConnection = $activeConnectionResult->fetch_assoc();
+                $stmt = $this->connection->prepare("UPDATE connexions SET Deconnexion = NOW() WHERE NoConnexion = ?");
+                $stmt->bind_param("i", $activeConnection['NoConnexion']);
+                $stmt->execute();
             }
+
+            // Incrémenter le nombre de connexions
+            $nbConnexions = $user['NbConnexions'] + 1;
+            $stmt = $this->connection->prepare("UPDATE utilisateurs SET NbConnexions = ? WHERE NoUtilisateur = ?");
+            $stmt->bind_param("ii", $nbConnexions, $user['NoUtilisateur']);
+            $stmt->execute();
+
+            // Enregistrer la nouvelle connexion dans la table connexions
+            $stmt = $this->connection->prepare("INSERT INTO connexions (NoUtilisateur, Connexion) VALUES (?, NOW())");
+            $stmt->bind_param("i", $user['NoUtilisateur']);
+            $stmt->execute();
+
+            return [
+                'success' => true,
+                'nom' => $user['Nom'],
+                'prenom' => $user['Prenom'],
+                'statut' => $user['Statut'], // Récupérer le statut de l'utilisateur
+                'nbConnexions' => $nbConnexions,
+                'noUtilisateur' => $user['NoUtilisateur']
+            ];
         } else {
             return [
                 'success' => false,
-                'message' => "Aucun utilisateur trouvé avec cette adresse e-mail."
+                'message' => "Mot de passe incorrect."
             ];
         }
+    } else {
+        return [
+            'success' => false,
+            'message' => "Aucun utilisateur trouvé avec cette adresse e-mail."
+        ];
     }
+}
+
+
+public function updateLogoutTime($noUtilisateur)
+{
+    // Préparer la requête pour mettre à jour l'heure de déconnexion seulement si elle est NULL
+    $stmt = $this->connection->prepare("UPDATE connexions 
+                                        SET Deconnexion = NOW() 
+                                        WHERE NoUtilisateur = ? 
+                                        AND Deconnexion IS NULL 
+                                        ORDER BY NoConnexion DESC 
+                                        LIMIT 1");
+    $stmt->bind_param("i", $noUtilisateur);
+
+    // Exécuter la requête
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows > 0) {
+            return true; // Mise à jour réussie
+        } else {
+            echo "Aucune mise à jour n'a été effectuée, peut-être que l'utilisateur est déjà déconnecté.";
+            return false; // Aucun enregistrement à mettre à jour
+        }
+    } else {
+        echo "Erreur lors de la mise à jour de la déconnexion: " . $stmt->error;
+        return false; // Échec de la mise à jour
+    }
+
+    $stmt->close();
+}
+
+
 
 
     // Fermer la connexion à la base de données
     public function closeConnection()
     {
         $this->connection->close();
-        echo "Déconnexion réussie.";
     }
 
 }
