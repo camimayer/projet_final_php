@@ -7,7 +7,7 @@ $pagesTitle = "Équipe Camila/Ricardo/Silvia";
 $_SESSION['PagesTitle'] = $pagesTitle;
 
 $dbManager = new DatabaseManager();
-// $loginResult = $dbManager->createTables();
+$loginResult = $dbManager->createTables();
 
 $errors = [];
 

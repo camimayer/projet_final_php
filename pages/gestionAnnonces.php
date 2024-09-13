@@ -103,88 +103,21 @@ WHERE NoUtilisateur = $noUtilisateur");
 <!DOCTYPE html>
 <html lang="fr">
 
-<?php    
-    require_once 'header.php';
+<?php
+require_once 'header.php';
 ?>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="../styles/ajouteAnnonces_style.css"> -->
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: center;
-        }
-
-        img {
-            width: 144px;
-            height: auto;
-        }
-
-        .btn {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-green {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-red {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-gray {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.8;
-        }
-
-        /* Estilo para que el botón "Ajouter" esté alineado a la derecha */
-        .btn-container {
-            text-align: right;
-            margin-bottom: 40px;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="../styles/gestionAnnonces_style.css">
 </head>
 
 <body>
-    <div class="divGestion">
+    <div class="divGestion m-5">
         <!-- Botón "Ajouter" alineado a la derecha -->
         <div class="btn-container">
-            <a href="AjoutAnnonce.php" class="btn btn-primary">Ajouter</a>
+            <a href="AjoutAnnonce.php" class="btn btn-primary mt-5">Ajouter</a>
         </div>
 
         <!-- Tableau pour afficher les annonces -->
