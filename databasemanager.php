@@ -51,11 +51,11 @@ class DatabaseManager
             if ($row['count'] == 0) {
                 //  Enregistre l'utilisateur administrateur dans la base de données avec un token
                 $token = bin2hex(random_bytes(50));
-                if ( $this->saveUserWithToken("admin@gmail.com", "Secret123", $token)) {
+                if ($this->saveUserWithToken("admin@gmail.com", "Secret123", $token)) {
                     echo "Utilisateur Admin créée avec succès.<br>";
                     $result = $this->connection->query("UPDATE utilisateurs SET Statut = 1 WHERE Courriel = 'admin@gmail.com'");
                 }
-            }   
+            }
         } else {
             echo "Erreur lors de la création de la table 'utilisateurs': " . $this->connection->error . "<br>";
         }
@@ -115,7 +115,7 @@ class DatabaseManager
     public function saveUserWithToken($courriel, $password, $token)
     {
         // Preparar a instrução SQL
-        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse, Creation, NbConnexions, Statut, Token) 
+        $stmt = $this->connection->prepare("INSERT INTO utilisateurs (Courriel, MotDePasse, Creation, NbConnexions, Statut, Token)
                                             VALUES (?, ?, NOW(), 0, 0, ?)");
 
         if ($stmt === false) {
@@ -260,11 +260,11 @@ class DatabaseManager
     public function updateLogoutTime($noUtilisateur)
     {
         // Préparer la requête pour mettre à jour l'heure de déconnexion seulement si elle est NULL
-        $stmt = $this->connection->prepare("UPDATE connexions 
-                                        SET Deconnexion = NOW() 
-                                        WHERE NoUtilisateur = ? 
-                                        AND Deconnexion IS NULL 
-                                        ORDER BY NoConnexion DESC 
+        $stmt = $this->connection->prepare("UPDATE connexions
+                                        SET Deconnexion = NOW()
+                                        WHERE NoUtilisateur = ?
+                                        AND Deconnexion IS NULL
+                                        ORDER BY NoConnexion DESC
                                         LIMIT 1");
         $stmt->bind_param("i", $noUtilisateur);
 
@@ -284,25 +284,54 @@ class DatabaseManager
         $stmt->close();
     }
 
-        // Fonction pour récupérer les données utilisateur par e-mail
-        public function getUserData($email) {
-            $query = "SELECT * FROM utilisateurs WHERE Courriel = ?";
-            $stmt = $this->connection->prepare($query);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            return $result->fetch_assoc();
-        }
-    
-        // Fonction pour mettre à jour le profil utilisateur
-        public function updateUser($email, $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC) {
-            $dateModification = date('Y-m-d H:i:s');
-            $query = "UPDATE utilisateurs SET Statut = ?, NoEmpl = ?, Nom = ?, Prenom = ?, NoTelMaison = ?, NoTelTravail = ?, NoTelCellulaire = ?, Modification = ? WHERE Courriel = ?";
-            $stmt = $this->connection->prepare($query);
-            $stmt->bind_param("iisssssss", $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC, $dateModification, $email);
-            return $stmt->execute();
-        }
+    // Fonction pour récupérer les données utilisateur par e-mail
+    public function getUserData($email)
+    {
+        $query = "SELECT * FROM utilisateurs WHERE Courriel = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
 
+    // Fonction pour mettre à jour le profil utilisateur
+    public function updateUser($email, $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC)
+    {
+        $dateModification = date('Y-m-d H:i:s');
+        $query = "UPDATE utilisateurs SET Statut = ?, NoEmpl = ?, Nom = ?, Prenom = ?, NoTelMaison = ?, NoTelTravail = ?, NoTelCellulaire = ?, Modification = ? WHERE Courriel = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("iisssssss", $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC, $dateModification, $email);
+        return $stmt->execute();
+    }
+
+    public function checkPasswordDB($courriel, $password)
+    {
+        // Préparer la requête pour vérifier les identifiants
+        $stmt = $this->connection->prepare("SELECT MotDePasse FROM utilisateurs WHERE Courriel = ?");
+        $stmt->bind_param("s", $courriel);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Vérifier si l'utilisateur a été trouvé
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            // Vérifier si le mot de passe correspond
+            if ($password == $user['MotDePasse']) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function updatePassword($email, $password)
+    {
+        $dateModification = date('Y-m-d H:i:s');
+        $query = "UPDATE utilisateurs SET MotDePasse = ?, Modification = ? WHERE Courriel = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("sss", $password, $dateModification, $email);
+        return $stmt->execute();
+    }
 
     // Fermer la connexion à la base de données
     public function closeConnection()
