@@ -40,22 +40,34 @@ $order = "$orderField $orderDirection";
 // Recherche
 $searchConditions = [];
 
+// Filtrer par date
 if (!empty($_GET['DateDebut']) && !empty($_GET['DateFin'])) {
     $dateDebut = $dbManager->getConnection()->real_escape_string($_GET['DateDebut']);
     $dateFin = $dbManager->getConnection()->real_escape_string($_GET['DateFin']);
-    $searchConditions[] = "Parution BETWEEN '$dateDebut' AND '$dateFin'";
+
+    // Vérifier que les dates sont valides et en format YYYY-MM-DD
+    if (preg_match("/^\d{4}-\d{2}-\d{2}$/", $dateDebut) && preg_match("/^\d{4}-\d{2}-\d{2}$/", $dateFin)) {
+        // Filtrer les annonces par la plage de dates
+        $searchConditions[] = "Parution >= '$dateDebut' AND Parution <= '$dateFin'";
+    } else {
+        // Message en cas de date invalide
+        echo "Format de date invalide.";
+    }
 }
 
+// Filtrer par auteur (Nom ou Prénom)
 if (isset($_GET['Auteur']) && $_GET['Auteur'] != '') {
     $auteur = $dbManager->getConnection()->real_escape_string($_GET['Auteur']);
     $searchConditions[] = "(utilisateurs.Nom LIKE '%$auteur%' OR utilisateurs.Prenom LIKE '%$auteur%')";
 }
 
+// Filtrer par catégorie
 if (isset($_GET['Categorie']) && $_GET['Categorie'] != '') {
     $categorie = (int) $_GET['Categorie'];
     $searchConditions[] = "annonces.Categorie = $categorie";
 }
 
+// Filtrer par description
 if (isset($_GET['Description']) && $_GET['Description'] != '') {
     $description = $dbManager->getConnection()->real_escape_string($_GET['Description']);
     $searchConditions[] = "(DescriptionAbregee LIKE '%$description%' OR DescriptionComplete LIKE '%$description%')";
@@ -90,9 +102,9 @@ $result = $dbManager->getConnection()->query($query);
 $totalPages = ceil($totalAnnonces / $limit);
 $currentPage = $page;
 
-// Inicialización de las variables para evitar errores
-$currentTypeOrdre = isset($_GET['TypeOrdre']) ? $_GET['TypeOrdre'] : 'Date';  // Valor por defecto
-$currentOrdre = isset($_GET['Ordre']) ? $_GET['Ordre'] : 'ASC';  // Valor por defecto
+// Initialisation des variables pour éviter les erreurs
+$currentTypeOrdre = isset($_GET['TypeOrdre']) ? $_GET['TypeOrdre'] : 'Date';  // Valeur par défaut
+$currentOrdre = isset($_GET['Ordre']) ? $_GET['Ordre'] : 'ASC';  // Valeur par défaut
 $currentDescription = isset($_GET['Description']) ? $_GET['Description'] : '';
 $currentAuteur = isset($_GET['Auteur']) ? $_GET['Auteur'] : '';
 $currentCategorie = isset($_GET['Categorie']) ? $_GET['Categorie'] : '';
@@ -100,14 +112,9 @@ $currentDateDebut = isset($_GET['DateDebut']) ? $_GET['DateDebut'] : '';
 $currentDateFin = isset($_GET['DateFin']) ? $_GET['DateFin'] : '';
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="fr">
-
-<?php
-require_once 'header.php';
-?>
+<?php require_once 'header.php'; ?>
 
 <head>
     <meta charset="UTF-8">
@@ -116,13 +123,11 @@ require_once 'header.php';
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="listeAnnonces_style.css" rel="stylesheet">
 </head>
-<br>
-<br>
 
 <body>
-    <div id="divPanel" class="d-flex m-5">
+    <div id="divPanel" class="d-flex justify-content-between mx-5 mt-2">
         <form method="GET" action="listeAnnonces.php" id="frmRecherche" class="d-flex flex-column">
-            <!-- Inputs ocultos para mantener los valores durante la paginación -->
+            <!-- Champs cachés pour conserver les valeurs pendant la pagination. -->
             <input type="hidden" name="page" value="<?php echo $page; ?>">
             <input type="hidden" name="TypeOrdre" value="<?php echo $currentTypeOrdre; ?>">
             <input type="hidden" name="Ordre" value="<?php echo $currentOrdre; ?>">
@@ -133,58 +138,64 @@ require_once 'header.php';
             <input type="hidden" name="DateFin" value="<?php echo $currentDateFin; ?>">
             <input type="hidden" id="hiddenLimit" name="limit" value="<?php echo $limit; ?>">
 
-            <!-- Dropdown para el número de elementos por página -->
-            <div class="d-inline-flex align-items-center mr-3">
-                <label for="ddlNbParPage" class="col-form-label mr-2">Éléments par page:</label>
-                <select id="ddlNbParPage" class="form-control form-control-sm" style="width: 70px;"
-                    onchange="updateLimitAndSubmit()">
-                    <option value="5" <?php echo $limit == 5 ? 'selected' : ''; ?>>5</option>
-                    <option value="10" <?php echo $limit == 10 ? 'selected' : ''; ?>>10</option>
-                    <option value="15" <?php echo $limit == 15 ? 'selected' : ''; ?>>15</option>
-                    <option value="20" <?php echo $limit == 20 ? 'selected' : ''; ?>>20</option>
-                </select>
+            <!-- Dropdown pour le nombre d'éléments par page -->
+            <div id="divNbParPage" class="ml-3 text-left flex-fill">
+                <div class="d-inline-flex" style="width: 100%">
+                    <label for="ddlNbParPage" class="col-form-label mr-2">Éléments par page:</label>
+                    <select id="ddlNbParPage" class="form-control form-control-sm" style="width: 70px;"
+                        onchange="updateLimitAndSubmit()">
+                        <option value="5" <?php echo $limit == 5 ? 'selected' : ''; ?>>5</option>
+                        <option value="10" <?php echo $limit == 10 ? 'selected' : ''; ?>>10</option>
+                        <option value="15" <?php echo $limit == 15 ? 'selected' : ''; ?>>15</option>
+                        <option value="20" <?php echo $limit == 20 ? 'selected' : ''; ?>>20</option>
+                    </select>
+                </div>
+                <h5 class="text-secondary font-italic"><?php echo $totalAnnonces . " annonces trouvées."; ?></h5>
             </div>
 
-            <h5 class="text-secondary font-italic mt-2">Total d'annonces: <?php echo $totalAnnonces; ?></h5>
-
-            <!-- Otros filtros de búsqueda... -->
-            <div id="divRechercheSimple" class="d-flex align-items-right">
-                <div class="form-group d-inline-flex my-0">
-                    <label for="TypeOrdre" class="col-form-label mr-2">Ordre :</label>
-                    <div class="my-auto">
-                        <select class="form-control form-control-sm" id="TypeOrdre" name="TypeOrdre">
-                            <option value="Date" <?php echo $currentTypeOrdre == 'Date' ? 'selected' : ''; ?>>Date
-                            </option>
-                            <option value="Auteur" <?php echo $currentTypeOrdre == 'Auteur' ? 'selected' : ''; ?>>Auteur
-                            </option>
-                            <option value="Categorie" <?php echo $currentTypeOrdre == 'Categorie' ? 'selected' : ''; ?>>
-                                Catégorie</option>
-                        </select>
+            <!-- Autres filtres de recherche... -->
+            <div class="d-flex flex-column align-items-end">
+                <div id="divRechercheSimple" class="d-flex align-items-left">
+                    <div class="form-group d-inline-flex my-0">
+                        <label for="TypeOrdre" class="col-form-label mr-2  ms-2">Ordre :</label>
+                        <div class="my-auto">
+                            <select class="form-control form-control-sm" id="TypeOrdre" name="TypeOrdre"
+                                onchange="submitForm()">
+                                <option value="Date" <?php echo $currentTypeOrdre == 'Date' ? 'selected' : ''; ?>>Date
+                                </option>
+                                <option value="Auteur" <?php echo $currentTypeOrdre == 'Auteur' ? 'selected' : ''; ?>>
+                                    Auteur
+                                </option>
+                                <option value="Categorie" <?php echo $currentTypeOrdre == 'Categorie' ? 'selected' : ''; ?>>
+                                    Catégorie</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group d-inline-flex mx-3 my-0">
-                    <div class="my-auto">
-                        <select name="Ordre" id="Ordre" class="form-control form-control-sm"
-                            onchange="submitOrdreChange()">
-                            <option value="ASC" <?php echo $orderDirection === 'ASC' ? 'selected' : ''; ?>>&#9650;
-                                Ascendant</option>
-                            <option value="DESC" <?php echo $orderDirection === 'DESC' ? 'selected' : ''; ?>>&#9660;
-                                Descendant</option>
-                        </select>
+                    <div class="form-group d-inline-flex mx-2 me-4 my-0">
+                        <div class="my-auto me-2">
+                            <select name="Ordre" id="Ordre" class="form-control form-control-sm"
+                                onchange="submitOrdreChange()">
+                                <option value="ASC" <?php echo $orderDirection === 'ASC' ? 'selected' : ''; ?>>&#9650;
+                                    Ascendant</option>
+                                <option value="DESC" <?php echo $orderDirection === 'DESC' ? 'selected' : ''; ?>>&#9660;
+                                    Descendant</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-
-                <div class="form-group d-inline-flex mx-3 my-0">
-                    <div class="my-auto">
-                        <input class="form-control form-control-sm" type="text" id="Description" name="Description"
-                            placeholder="Description" value="<?php echo htmlspecialchars($currentDescription); ?>">
+                    <br>
+                    <br>
+                    <div class="form-group d-flex flex-column my-0 ms-2">
+                        <div class="my-auto">
+                            <input class="form-control form-control-sm" type="text" id="Description" name="Description"
+                                value="<?php echo htmlspecialchars($currentDescription); ?>">
+                        </div>
                     </div>
-                </div>
 
-                <input class="btn btn-primary btn-sm mx-2" type="submit" value="Rechercher">
-                <button id="btnAfficherAvance" type="button"
-                    class="btn btn-secondary btn-sm font-weight-bold">+</button>
+                    <input class="btn btn-primary btn-sm mx-2" type="submit" value="Rechercher">
+                    <button id="btnAfficherAvance" type="button"
+                        class="btn btn-secondary btn-sm font-weight-bold">+</button>
+                </div>
             </div>
 
             <!-- Formulaire de recherche avancée -->
@@ -202,8 +213,7 @@ require_once 'header.php';
                         <option value="2" <?php echo $currentCategorie == 2 ? 'selected' : ''; ?>>Recherche</option>
                         <option value="3" <?php echo $currentCategorie == 3 ? 'selected' : ''; ?>>À vendre</option>
                         <option value="4" <?php echo $currentCategorie == 4 ? 'selected' : ''; ?>>À donner</option>
-                        <option value="5" <?php echo $currentCategorie == 5 ? 'selected' : ''; ?>>Service offert
-                        </option>
+                        <option value="5" <?php echo $currentCategorie == 5 ? 'selected' : ''; ?>>Service offert</option>
                         <option value="6" <?php echo $currentCategorie == 6 ? 'selected' : ''; ?>>Autre</option>
                     </select>
                 </div>
@@ -239,18 +249,19 @@ require_once 'header.php';
                             <!-- Mostrar la categoría -->
                             <div class="text-right"><?php echo $row['CategorieDescription']; ?></div>
                         </div>
-                        <div class="overflow-hidden text-right imageSize">
-                            <img src="../photos-annonce/<?php echo $row['Photo']; ?>" alt="Photo annonce" width="300">
+                        <div class="overflow-hidden text-center imageSize">
+                            <img src="../photos-annonce/<?php echo $row['Photo']; ?>" alt="Photo annonce" width="300"
+                                height="280">
                         </div>
                         <div class="card-body pb-1">
-                            <!-- Mostrar la petite description como un texto debajo de la imagen -->
+                            <!-- Afficher la petite description comme un texte sous l'image. -->
                             <p class="d-flex justify-content-between">
-                                <a href="detailsAnnonce.php?NoAnnonce=<?php echo $row['NoAnnonce']; ?>"
+                                <a href="detailsAnnonce.php?NoAnnonce=<?php echo $row['NoAnnonce']; ?>" ;
                                     class="text-primary font-weight-bold">
                                     <?php echo $row['DescriptionAbregee']; ?>
                                 </a>
                             </p>
-                            <!-- Mostrar el nombre y apellido del usuario debajo de la petite description -->
+                            <!-- Afficher le nom et le prénom de l'utilisateur sous la petite description -->
                             <p class="d-flex justify-content-between">
                                 <a href="mailto:<?php echo $row['Courriel']; ?>" class="text-secondary">
                                     <?php echo $row['Courriel'] . ' ' . $row['Prenom'] . ' ' . $row['Nom']; ?>
@@ -259,19 +270,19 @@ require_once 'header.php';
                             <div class="d-flex justify-content-between">
                                 <div class="text-left"></div>
                                 <div class="text-right font-weight-bold">
-                                    <!-- Mostrar el precio -->
+                                    <!-- Afficher le prix  -->
                                     <span><?php echo $row['Prix'] ? number_format($row['Prix'], 2, ',', ' ') . ' $' : 'N/A'; ?></span>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer d-flex justify-content-between py-0">
-                            <!-- Mostrar la fecha de publicación -->
+                            <!-- Afficher la date de publication -->
                             <div class="text-left"><?php echo $row['Parution']; ?></div>
                             <div class="text-right font-italic"><?php echo $sequentialNumber; ?></div>
                         </div>
                     </div>
                 </div>
-                <?php $sequentialNumber++; // Incrementar el número secuencial ?>
+                <?php $sequentialNumber++; // Incremente le numero secuenciel ?>
             <?php endwhile; ?>
         <?php else: ?>
             <p>Aucune annonce trouvée.</p>
@@ -280,7 +291,7 @@ require_once 'header.php';
 
     <!-- Pagination -->
     <div id="divPages" class="m-auto text-center">
-        <!-- Botones de primera página y página anterior -->
+        <!-- Botons de la première page et de la page precédente -->
         <?php
         $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
         $previousPage = $currentPage > 1 ? $currentPage - 1 : 1;
@@ -295,14 +306,14 @@ require_once 'header.php';
         $currentDateDebut = isset($_GET['DateDebut']) ? $_GET['DateDebut'] : '';
         $currentDateFin = isset($_GET['DateFin']) ? $_GET['DateFin'] : '';
 
-        // Primera página
+        // Première page
         echo '<a class="h3 p-1" href="/projet_final_php/pages/listeAnnonces.php?page=1&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">«</a>';
 
-        // Página anterior
+        // Page précédente
         echo '<a class="h3 p-1" href="/projet_final_php/pages/listeAnnonces.php?page=' . $previousPage . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '"><</a>';
         ?>
 
-        <!-- Select para elegir la página -->
+        <!-- Select por choisir la page -->
         <select id="ddlPage" onchange="window.location.href=this.value">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <option
@@ -313,56 +324,46 @@ require_once 'header.php';
             <?php endfor; ?>
         </select>
 
-        <!-- Página siguiente y última página -->
+        <!-- Page suivante et dernière page -->
         <?php
-        // Página siguiente
+        // Page suivante
         echo '<a class="h3 p-1" href="/projet_final_php/pages/listeAnnonces.php?page=' . $nextPage . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">></a>';
 
-        // Última página
+        // Dernière page
         echo '<a class="h3 p-1" href="/projet_final_php/pages/listeAnnonces.php?page=' . $totalPages . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">»</a>';
         ?>
     </div>
-
     </div>
 
     <script>
-        // Actualizar el valor del limit cuando se cambia el dropdown
         function updateLimitAndSubmit() {
             var ddlNbParPage = document.getElementById("ddlNbParPage");
             var limit = ddlNbParPage.value;
-
-            // Actualizar el valor del campo hidden limit
             document.getElementById("hiddenLimit").value = limit;
-
-            // Enviar el formulario
             document.getElementById("frmRecherche").submit();
         }
 
-        // Gestionar la visibilidad du dropdown de recherche avancée
         document.getElementById('btnAfficherAvance').addEventListener('click', function () {
             var advancedSearch = document.getElementById('divRechercheAvancé');
             var btn = document.getElementById('btnAfficherAvance');
 
-            // Alternar entre afficher/cacher la recherche avancée
             if (advancedSearch.style.display === "none" || advancedSearch.style.display === "") {
-                advancedSearch.style.display = "block";  // Afficher la recherche avancée
-                btn.textContent = '-';  // Changer le texte du bouton à '-'
+                advancedSearch.style.display = "block";
+                btn.textContent = '-';
             } else {
-                advancedSearch.style.display = "none";  // Cacher la recherche avancée
-                btn.textContent = '+';  // Changer le texte du bouton à '+'
+                advancedSearch.style.display = "none";
+                btn.textContent = '+';
             }
         });
+
         function submitOrdreChange() {
-            // Envoyer le formulaire lorsque l'utilisateur change la valeur
             document.getElementById('frmRecherche').submit();
         }
 
-        // Initialiser les icônes en fonction de la valeur sélectionnée, sans envoyer le formulaire
         function updateOrdreIcon() {
             var ordreSelect = document.getElementById('Ordre');
             var selectedValue = ordreSelect.value;
 
-            // Actualiser l'affichage de l'icône sans envoyer le formulaire
             if (selectedValue === 'ASC') {
                 ordreSelect.options[0].text = '▲ Ascendant';
                 ordreSelect.options[1].text = '▼ Descendant';
@@ -372,15 +373,20 @@ require_once 'header.php';
             }
         }
 
-        // Initialiser les icônes lorsque la page se charge
+        function submitForm() {
+            document.getElementById("frmRecherche").submit();
+        }
+
         window.onload = function () {
             updateOrdreIcon();
         };
+
+        document.getElementById("TypeOrdre").addEventListener("change", submitForm);
+        document.getElementById("Ordre").addEventListener("change", submitForm);
     </script>
 </body>
 
 </html>
 <?php
-// Fermer la connexion à la base de données
 $dbManager->closeConnection();
 ?>
