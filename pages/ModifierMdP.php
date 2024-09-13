@@ -3,6 +3,8 @@
     $pagesTitle = $_SESSION['PagesTitle'];
     require_once '../databasemanager.php';
     // require_once 'header.php';
+
+    // Inicializar as variáveis de erro e sucesso
     $email = $_SESSION['Courriel'];
     $databaseManager = new DatabaseManager();
     $errors = [];
@@ -11,33 +13,34 @@
     // if ($databaseManager->checkPasswordDB($email, "MotdePasse")) {}
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $courriel = trim($_POST['password']);
-        $password = trim($_POST['newPassword']);
-        $passwordConfirm = trim($_POST['newPasswordConfirm']);
-    
-        if ($courriel !== $courrielConfirm) {
-            $errors[] = "Les adresses de courriel ne correspondent pas.";
-        }
-    
+        $password = trim($_POST['Password']);
+        $newPassword = trim($_POST['newPassword']);
+        $newPasswordConfirm = trim($_POST['newPasswordConfirm']);
+       
         // Validação da senha
-        if (strlen($password) < 5 || strlen($password) > 15) {
+        if (strlen($newPassword) < 5 || strlen($newPassword) > 15) {
             $errors[] = "Le mot de passe doit contenir entre 5 et 15 caractères.";
-        } elseif (preg_match('/[A-Z]/', $password)) {
+        } elseif (preg_match('/[A-Z]/', $newPassword)) {
             $errors[] = "Le mot de passe doit être en minuscules (pas de majuscules).";
-        } elseif (!preg_match('/[a-z]/', $password)) {
+        } elseif (!preg_match('/[a-z]/', $newPassword)) {
             $errors[] = "Le mot de passe doit contenir au moins une lettre minuscule.";
         }
     
-        if ($password !== $passwordConfirm) {
+        if ($newPassword !== $newPasswordConfirm) {
             $errors[] = "Les mots de passe ne correspondent pas.";
         }
 
+        if (!$databaseManager->checkPasswordDB($email, $password)) {
+            $errors[] = "Mot de passe invalid.";
+        }
+
+        if (empty($errors)) {
+            $databaseManager->updatePassword($email, $newPassword);
+            header("Location: EnvoieModifierMdP.php");
+            exit();
+        }
+
     }
-
-
-
-// Inicializar as variáveis de erro e sucesso
-
 
 ?>
 
@@ -64,7 +67,7 @@
         <!-- Formulaire d'inscription -->
         <form action="ModifierMdP.php" method="post">
             <label for="courriel">Ancien mot de passe:</label>
-            <input type="email" id="courriel" name="Password" required>
+            <input type="password" id="courriel" name="Password" required>
 
             <label for="password">Nouveau mot de passe:</label>
             <input type="password" id="password" name="newPassword" required>
@@ -78,6 +81,8 @@
                 <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
             <?php endif; ?>
         </form>
+        <br/>
+        <p><a href="miseAJourProfil.php">Retour à la mise à jour du profile</a></p>
     </div>
 </body>
 

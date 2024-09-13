@@ -319,6 +319,8 @@ class DatabaseManager
             // Vérifier si le mot de passe correspond
             if ($password == $user['MotDePasse']) {
                 return true;
+            }else {
+                return false;
             }
         }
         return false;
