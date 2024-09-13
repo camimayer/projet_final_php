@@ -1,52 +1,68 @@
-/* Estilos para el contenedor principal */
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-/* Estilos para las cartas */
-.card {
+table,
+th,
+td {
   border: 1px solid #ccc;
-  padding: 20px;
-  flex: 1 1 calc(20% - 20px);
-  /* 5 cartas por fila, con márgenes */
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.card img {
+th,
+td {
+  padding: 10px;
+  text-align: center;
+}
+
+img {
   width: 144px;
   height: auto;
-  margin-bottom: 15px;
 }
 
-.pagination {
-  text-align: center;
-  margin: 20px 0;
+.btn {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-/* Estilos adicionales para asegurar que se vean bien en dispositivos móviles */
-@media (max-width: 1200px) {
-  .card {
-    flex: 1 1 calc(33.33% - 20px);
-    /* 3 cartas por fila en pantallas medianas */
-  }
+.btn-green {
+  background-color: #28a745;
+  color: white;
 }
 
-@media (max-width: 768px) {
-  .card {
-    flex: 1 1 calc(50% - 20px);
-    /* 2 cartas por fila en pantallas pequeñas */
-  }
+.btn-red {
+  background-color: #dc3545;
+  color: white;
 }
 
-@media (max-width: 576px) {
-  .card {
-    flex: 1 1 100%;
-    /* 1 carta por fila en pantallas muy pequeñas */
-  }
+.btn-gray {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+/* Estilo para que el botón "Ajouter" esté alineado a la derecha */
+.btn-container {
+  text-align: right;
+  margin-bottom: 40px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+table {
+  border-collapse: collapse;
 }
