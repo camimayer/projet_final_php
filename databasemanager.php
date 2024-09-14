@@ -42,22 +42,21 @@ class DatabaseManager
             Token VARCHAR(255)
         )";
 
-
         if ($this->connection->query($sql) === TRUE) {
-            // echo "Table 'utilisateurs' créée avec succès.<br>";
+            echo "<script>console.log('Table `utilisateurs` créée avec succès.');</script>";
             // Vérifie si l'utilisateur admin est déjà enregistré
             $result = $this->connection->query("SELECT COUNT(*) as count FROM utilisateurs WHERE Courriel = 'admin@gmail.com'");
             $row = $result->fetch_assoc();
             if ($row['count'] == 0) {
-                //  Enregistre l'utilisateur administrateur dans la base de données avec un token
+                // Enregistrer l'utilisateur administrateur avec un token
                 $token = bin2hex(random_bytes(50));
                 if ($this->saveUserWithToken("admin@gmail.com", "Secret123", $token)) {
-                    echo "Utilisateur Admin créée avec succès.<br>";
-                    $result = $this->connection->query("UPDATE utilisateurs SET Statut = 1 WHERE Courriel = 'admin@gmail.com'");
+                    echo "<script>console.log('Utilisateur Admin créé avec succès.');</script>";
+                    $this->connection->query("UPDATE utilisateurs SET Statut = 1 WHERE Courriel = 'admin@gmail.com'");
                 }
             }
         } else {
-            echo "Erreur lors de la création de la table 'utilisateurs': " . $this->connection->error . "<br>";
+            echo "<script>console.log('Erreur lors de la création de la table `utilisateurs`: " . $this->connection->error . "');</script>";
         }
 
         // Création de la table 'connexions'
@@ -70,9 +69,9 @@ class DatabaseManager
         )";
 
         if ($this->connection->query($sql) === TRUE) {
-            echo "Table 'connexions' créée avec succès.<br>";
+            echo "<script>console.log('Table `connexions` créée avec succès.');</script>";
         } else {
-            echo "Erreur lors de la création de la table 'connexions': " . $this->connection->error . "<br>";
+            echo "<script>console.log('Erreur lors de la création de la table `connexions`: " . $this->connection->error . "');</script>";
         }
 
         // Création de la table 'categories'
@@ -82,10 +81,10 @@ class DatabaseManager
             )";
 
         if ($this->connection->query($sql) === TRUE) {
-            echo "Table 'categories' créée avec succès.<br>";
-            $this->insertDefaultCategories(); // Inserta las categorías predeterminadas
+            echo "<script>console.log('Table `categories` créée avec succès.');</script>";
+            $this->insertDefaultCategories(); // Insertion des catégories prédéfinies
         } else {
-            echo "Erreur lors de la création de la table 'categories': " . $this->connection->error . "<br>";
+            echo "<script>console.log('Erreur lors de la création de la table `categories`: " . $this->connection->error . "');</script>";
         }
 
         // Création de la table 'annonces'
@@ -105,12 +104,11 @@ class DatabaseManager
         )";
 
         if ($this->connection->query($sql) === TRUE) {
-            echo "Table 'annonces' créée avec succès.<br>";
+            echo "<script>console.log('Table `annonces` créée avec succès.');</script>";
         } else {
-            echo "Erreur lors de la création de la table 'annonces': " . $this->connection->error . "<br>";
+            echo "<script>console.log('Erreur lors de la création de la table `annonces`: " . $this->connection->error . "');</script>";
         }
     }
-
     // Méthode pour enregistrer un utilisateur
     public function saveUserWithToken($courriel, $password, $token)
     {
@@ -182,7 +180,7 @@ class DatabaseManager
                 echo "Erreur lors de l'insertion des catégories: " . $this->connection->error . "<br>";
             }
         } else {
-            echo "Les catégories existent déjà.<br>";
+            echo "<script>'Les catégories existent déjà.<br>'</script>";
         }
     }
 

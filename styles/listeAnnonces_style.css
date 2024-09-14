@@ -1,4 +1,4 @@
-/* Estilos generales */
+/* Styles généraux */
 body {
   background-color: #f8f9fa;
 }
@@ -8,25 +8,25 @@ body {
 }
 
 .card {
-  height: 400px; /* Establecer una altura fija para las cartas */
-  max-height: 100%; /* Asegurarse de que no crezca más allá de su contenedor */
+  height: 400px; /* Définir une hauteur fixe pour les cartes */
+  max-height: 100%; /* S'assurer qu'elle ne dépasse pas son conteneur */
   display: flex;
   flex-direction: column;
 }
 
 .imageSize img {
-  max-height: 200px; /* Tamaño máximo para la imagen */
-  width: 100%; /* Asegurar que ocupe todo el ancho del contenedor */
-  object-fit: cover; /* Ajustar la imagen dentro del espacio sin distorsión */
+  max-height: 200px; /* Taille maximale pour l'image */
+  width: 100%; /* S'assurer qu'elle occupe toute la largeur du conteneur */
+  object-fit: cover; /* Ajuster l'image sans distorsion */
 }
 
 .card-body {
-  flex: 1; /* Permitir que el contenido del cuerpo crezca */
-  overflow: hidden; /* Evitar que el contenido se desborde */
+  flex: 1; /* Permettre au contenu du corps de s'agrandir */
+  overflow: hidden; /* Empêcher le débordement du contenu */
 }
 
 .card-footer {
-  margin-top: auto; /* Empujar el pie de página al final */
+  margin-top: auto; /* Pousser le pied de page vers le bas */
 }
 
 .card-header,
@@ -36,19 +36,19 @@ body {
   padding: 10px;
 }
 
-/* Estilos para las imágenes dentro de las cartas */
+/* Styles pour les images à l'intérieur des cartes */
 .imageSize img {
-  width: 100%; /* La imagen ocupa todo el ancho de la carta */
-  height: 200px; /* Altura fija para las imágenes */
-  object-fit: cover; /* Asegura que la imagen se ajuste sin distorsionarse */
+  width: 100%; /* L'image occupe toute la largeur de la carte */
+  height: 200px; /* Hauteur fixe pour les images */
+  object-fit: cover; /* S'assure que l'image s'ajuste sans être déformée */
   transition: transform 0.3s ease;
 }
 
 .imageSize:hover img {
-  transform: scale(1.1); /* Efecto de zoom al pasar el mouse */
+  transform: scale(1.1); /* Effet de zoom au survol de la souris */
 }
 
-/* Estilos para los botones */
+/* Styles pour les boutons */
 .btn {
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
@@ -58,7 +58,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Estilos para los campos del formulario */
+/* Styles pour les champs du formulaire */
 input[type="text"],
 input[type="date"],
 select {
@@ -72,7 +72,7 @@ select:focus {
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Estilos para la paginación */
+/* Styles pour la pagination */
 .pagination {
   text-align: center;
   margin: 20px 0;
@@ -92,7 +92,7 @@ select:focus {
   color: #fff;
 }
 
-/* Estilos para el contenedor de búsqueda avanzada */
+/* Styles pour le conteneur de recherche avancée */
 #divRechercheAvancé {
   transition: max-height 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
@@ -105,10 +105,10 @@ select:focus {
   opacity: 1;
 }
 
-/* Estilos responsivos para pantallas más pequeñas */
+/* Styles réactifs pour les écrans plus petits */
 @media (max-width: 1200px) {
   .card.annonce {
-    flex: 1 1 calc(33.33% - 20px); /* 3 cartas por fila en pantallas medianas */
+    flex: 1 1 calc(33.33% - 20px); /* 3 cartes par ligne sur des écrans moyens */
   }
 }
 
@@ -120,20 +120,40 @@ select:focus {
   .card.annonce {
     width: 100%;
     max-width: 400px;
-    height: auto; /* Ajusta la altura automáticamente en pantallas pequeñas */
+    height: auto; /* Ajuste la hauteur automatiquement sur les petits écrans */
   }
 }
 
 @media (max-width: 576px) {
   .card.annonce {
-    flex: 1 1 100%; /* 1 carta por fila en pantallas muy pequeñas */
+    flex: 1 1 100%; /* 1 carte par ligne sur les très petits écrans */
   }
 }
-.imageSize img {
-  width: 100%;
-  height: 200px; /* Ajusta según el tamaño deseado */
-  object-fit: cover; /* Mantiene la relación de aspecto de la imagen */
+
+.imageSize {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto; /* Ajuste la hauteur si nécessaire */
+  width: 100%; /* Ajuste la largeur si nécessaire */
 }
+
 #divRechercheSimple {
   margin-left: 80px;
+}
+/* Establecer un tamaño fijo para las tarjetas */
+.card {
+  width: 300px; /* Ancho fijo */
+  height: 400px; /* Alto fijo */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/* Controlar el tamaño de la imagen dentro de la tarjeta */
+.imageSize img {
+  max-width: 100%; /* La imagen se ajusta al ancho máximo de la tarjeta */
+  max-height: 200px; /* Alto máximo para que no exceda el tamaño de la tarjeta */
+  object-fit: cover; /* Ajustar la imagen sin distorsión */
 }
