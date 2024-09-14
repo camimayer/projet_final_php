@@ -121,7 +121,7 @@ $currentDateFin = isset($_GET['DateFin']) ? $_GET['DateFin'] : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des annonces</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="listeAnnonces_style.css" rel="stylesheet">
+    <link href="../styles/listeAnnonces_style.css" rel="stylesheet">
 </head>
 
 <body>
