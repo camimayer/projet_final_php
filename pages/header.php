@@ -19,8 +19,8 @@
 <?php 
                     if ($_SESSION['Statut'] == 1): // Profil Admin 
 ?>
-                        <a href="ListeUtilisateur.php" class="nav-item nav-link text-light">Liste des utilisateurs</a>
-                        <a href="NettoyageBD.php" class="nav-item nav-link text-light">Nettoyage de la base de données</a>
+                        <a href="ListeUtilisateurs.php" class="nav-item nav-link text-light">Liste des utilisateurs</a>
+                        <a href="nettoyageBaseDeDonnees.php" class="nav-item nav-link text-light">Nettoyage de la base de données</a>
 <?php 
                     else : // Autres profilss 
 ?>
