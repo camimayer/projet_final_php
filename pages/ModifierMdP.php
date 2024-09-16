@@ -2,15 +2,12 @@
     session_start();
     $pagesTitle = $_SESSION['PagesTitle'];
     require_once '../databasemanager.php';
-    // require_once 'header.php';
 
     // Inicializar as variáveis de erro e sucesso
     $email = $_SESSION['Courriel'];
     $databaseManager = new DatabaseManager();
     $errors = [];
     $success = false;
-
-    // if ($databaseManager->checkPasswordDB($email, "MotdePasse")) {}
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST['Password']);
@@ -78,7 +75,7 @@
             <button type="submit">Soumettre</button>
 
             <?php if ($success): ?>
-                <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
+                <p class="success">Mot de passe modifié avec succès.</p>
             <?php endif; ?>
         </form>
         <br/>
@@ -86,53 +83,4 @@
     </div>
 </body>
 
-
-<!-- <body>
-
-<br><br>
-
-    <div class="container-fluid my-4">
-        <div id="divMAJMdP" class="col-4 m-auto">
-            <h1 class="text-center" id="titreMAJMdP">Mise à jour du mot de passe</h1>
-            <br/>
-            <br/>
-            <form id="formMAJProfile" action="EnvoieModifierMdP.php" method="POST">
-
-                <div class="form-group row">
-                    <label class="col-4 col-form-label" for="tbMdpVieux">Ancien mot de passe</label>
-                    <div class="col-6">
-                        <input type="password" class="form-control" id="tbMdpVieux" name="tbMdpVieux"
-                               value="" required>
-                    </div>
-                    <p id="errMdpVieux" class="text-danger font-weight-bold">
-                                            </p>
-                </div>
-                <div class="form-group row">
-                    <label class="col-4 col-form-label" for="tbMdpNouv">Nouveau mot de passe</label>
-                    <div class="col-6">
-                        <input type="password" class="form-control" id="tbMdpNouv" name="tbMdpNouv"
-                               value="" required>
-                    </div>
-                    <p id="errMdpNouv" class="text-danger font-weight-bold">
-                                            </p>
-                </div>
-                <div class="form-group row">
-                    <label class="col-4 col-form-label" for="tbMdpNouvVerif">Confirmation nouveau mot de passe</label>
-                    <div class="col-6">
-                        <input type="password" class="form-control" id="tbMdpNouvVerif" name="tbMdpNouvVerif"
-                               value="" required>
-                    </div>
-                    <p id="errMdpNouvVerif" class="text-danger font-weight-bold">
-                                            </p>
-                </div>
-                <div class="d-flex">
-                    <button type="submit" class="btn btn-primary" id="btnMAJProfile">Enregistrer</button>
-                </div>
-            </form>
-            <br/>
-            <p><a href="miseAJourProfil.php">Retour à la mise à jour du profile</a></p>
-        </div>
-    </div>
-    <br>
-</body> -->
 </html>

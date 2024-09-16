@@ -146,6 +146,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php if ($success): ?>
                 <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
             <?php endif; ?>
+            <br>
+            <p>Déjà Membre ? <a href="login.php">Connectez vous ici</a>.</p>
         </form>
     </div>
 </body>
