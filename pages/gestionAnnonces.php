@@ -18,6 +18,16 @@ if (!isset($_SESSION['NoUtilisateur'])) {
     exit();
 }
 
+$status = $_SESSION['Statut'];
+$nom    = $_SESSION['Nom'];
+$prenom = $_SESSION['Prenom'];
+
+// Rediriger l'utilisateur vers la page de profil si le nom ou le prénom ne sont pas enregistrés 
+if (($status == 9) && ((!($nom)) || (!($prenom)))) {
+    header("Location: miseAJourProfil.php");
+    exit();
+}
+
 $noUtilisateur = $_SESSION['NoUtilisateur'];
 
 // Insertion d'une nouvelle annonce

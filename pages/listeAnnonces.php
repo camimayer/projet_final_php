@@ -11,6 +11,16 @@ if (!isset($_SESSION['Courriel'])) {
     exit();
 }
 
+$status = $_SESSION['Statut'];
+$nom    = $_SESSION['Nom'];
+$prenom = $_SESSION['Prenom'];
+
+// Rediriger l'utilisateur vers la page de profil si le nom ou le prénom ne sont pas enregistrés 
+if (($status == 9) && ((!($nom)) || (!($prenom)))) {
+    header("Location: miseAJourProfil.php");
+    exit();
+}
+
 // Variables pour la pagination et les filtres
 $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10; // Nombre d'annonces par page par défaut
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;

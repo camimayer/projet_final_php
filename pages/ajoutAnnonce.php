@@ -7,6 +7,16 @@ $dbManager = new DatabaseManager();
 $errors = [];
 $success = false;
 
+$status = $_SESSION['Statut'];
+$nom    = $_SESSION['Nom'];
+$prenom = $_SESSION['Prenom'];
+
+// Rediriger l'utilisateur vers la page de profil si le nom ou le prénom ne sont pas enregistrés 
+if (($status == 9) && ((!($nom)) || (!($prenom)))) {
+    header("Location: miseAJourProfil.php");
+    exit();
+}
+
 // Pour les tests : assigner temporairement une valeur à NoUtilisateur
 if (!isset($_SESSION['NoUtilisateur'])) {
     // Définir l'ID de l'utilisateur manuellement (utiliser l'ID d'un utilisateur existant dans la base de données)

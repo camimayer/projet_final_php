@@ -32,10 +32,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['Prenom'] = $loginResult['prenom'];
             $_SESSION['Statut'] = $loginResult['statut']; // Stocker le statut de l'utilisateur
             $_SESSION['NoUtilisateur'] = $loginResult['noUtilisateur'];
+            $status = $_SESSION['Statut'];
+            $nom    = $_SESSION['Nom'];
+            $prenom = $_SESSION['Prenom'];
 
             // Rediriger l'utilisateur vers la page de profil
-            header("Location: listeAnnonces.php");
-            exit();
+            if (($status == 9) && ((!($nom)) || (!($prenom)))) {
+                header("Location: miseAJourProfil.php");
+                exit();
+            }
+            
+            if ($status == 0) { // Vérifie si le compte n'est pas activé 
+                $errors[] = "Votre compte n'a pas encore été vérifié. Veuillez vérifier votre e-mail pour activer votre compte.";
+            }else {
+                header("Location: listeAnnonces.php");
+                exit();
+            }
+            
         } else {
             // Si la connexion échoue, ajouter un message d'erreur
             $errors[] = $loginResult['message'];
