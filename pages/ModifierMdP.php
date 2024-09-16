@@ -8,6 +8,12 @@
     $databaseManager = new DatabaseManager();
     $errors = [];
     $success = false;
+    // Vérification si l'utilisateur est authentifié
+    if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
+        // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
+        header("Location: login.php");
+        exit();
+    }
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST['Password']);

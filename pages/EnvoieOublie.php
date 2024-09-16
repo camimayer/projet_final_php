@@ -1,7 +1,7 @@
 <?php
     session_start();
-    $courriel = $_SESSION['Courriel'];
-    $pagesTitle = $_SESSION['PagesTitle'];
+    $courriel =  !isset($_SESSION['Courriel']) ? 'non fourni' : $_SESSION['Courriel'];
+    $pagesTitle = !isset($_SESSION['PagesTitle']) ? "Équipe Camila/Ricardo/Silvia" : $_SESSION['PagesTitle'];
 ?>
 <html>
     <head>

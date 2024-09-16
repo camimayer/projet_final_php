@@ -6,8 +6,10 @@ $pathToCss = "../styles/style.css";
 $pagesTitle = "Équipe Camila/Ricardo/Silvia";
 $_SESSION['PagesTitle'] = $pagesTitle;
 
+if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
+    $_SESSION['Authentifie'] = FALSE;
+}
 $dbManager = new DatabaseManager();
-//$loginResult = $dbManager->createTables();
 
 $errors = [];
 
@@ -45,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($status == 0) { // Vérifie si le compte n'est pas activé 
                 $errors[] = "Votre compte n'a pas encore été vérifié. Veuillez vérifier votre e-mail pour activer votre compte.";
             }else {
+                $_SESSION['Authentifie'] = TRUE;
                 header("Location: listeAnnonces.php");
                 exit();
             }

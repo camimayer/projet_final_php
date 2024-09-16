@@ -1,7 +1,11 @@
 
 <?php
     session_start();
-    
+    // Vérification si l'utilisateur est authentifié
+    if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
+        header("Location: login.php");
+        exit();
+    }
     require_once 'header.php';
 ?>
 <html>

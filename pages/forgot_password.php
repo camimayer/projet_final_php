@@ -18,6 +18,7 @@
                 $errors[] = "Veuillez entrer une addresse email";
             } elseif ($stmt->num_rows <= 0) {
                 $errors[] = "Cet email est lié à aucun compte !";
+                $courriel = null;
             } 
             $_SESSION['Courriel'] = $courriel;
             $stmt->close();

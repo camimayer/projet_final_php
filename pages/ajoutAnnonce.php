@@ -6,7 +6,11 @@ require_once '../config/localhost.php';
 $dbManager = new DatabaseManager();
 $errors = [];
 $success = false;
-
+// Vérification si l'utilisateur est authentifié
+if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
+    header("Location: login.php");
+    exit();
+}
 $status = $_SESSION['Statut'];
 $nom    = $_SESSION['Nom'];
 $prenom = $_SESSION['Prenom'];

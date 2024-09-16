@@ -6,7 +6,7 @@ require_once '../config/localhost.php';
 $dbManager = new DatabaseManager();
 
 // Vérification si l'utilisateur est authentifié
-if (!isset($_SESSION['Courriel'])) {
+if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
     header("Location: login.php");
     exit();
 }

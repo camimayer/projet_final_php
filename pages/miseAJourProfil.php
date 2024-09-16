@@ -3,7 +3,7 @@
     require_once '../databasemanager.php';
 
     // Vérifie si l'utilisateur est connecté
-    if (!isset($_SESSION['Courriel'])) {
+    if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
         header("Location: login.php");
         exit();
     }

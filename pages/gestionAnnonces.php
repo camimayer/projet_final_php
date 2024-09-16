@@ -12,8 +12,7 @@ $errors = [];
 $success = false;
 
 // Vérification si l'utilisateur est authentifié
-if (!isset($_SESSION['NoUtilisateur'])) {
-    // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
+if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
     header("Location: login.php");
     exit();
 }
