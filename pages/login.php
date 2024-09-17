@@ -38,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $nom    = $_SESSION['Nom'];
             $prenom = $_SESSION['Prenom'];
 
+            $_SESSION['Authentifie'] = TRUE;
             // Rediriger l'utilisateur vers la page de profil
             if (($status == 9) && ((!($nom)) || (!($prenom)))) {
                 header("Location: miseAJourProfil.php");
@@ -47,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($status == 0) { // Vérifie si le compte n'est pas activé 
                 $errors[] = "Votre compte n'a pas encore été vérifié. Veuillez vérifier votre e-mail pour activer votre compte.";
             }else {
-                $_SESSION['Authentifie'] = TRUE;
+
                 header("Location: listeAnnonces.php");
                 exit();
             }

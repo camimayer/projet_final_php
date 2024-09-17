@@ -68,26 +68,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     try {
                         // Configurações do servidor SMTP (usando SendGrid)
                         $mail->isSMTP();                               
-                        $mail->Host       = '';               
+                        $mail->Host       = 'smtp.office365.com';               
                         $mail->SMTPAuth   = true;                     
-                        $mail->Username   = '';                         
-                        $mail->Password   = '';
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Habilitar criptografia TLS
-                        $mail->Port       = 587;                                    // Porta TCP para TLS
-                
-                        // Destinatário
-                        $mail->setFrom('camicatmayer@gmail.com', 'App Name');          // Remetente do email (mudar se necessário)
-                        $mail->addAddress($courriel);                               // Adicionar destinatário
-                
-                        // Conteúdo do email
-                        $mail->isHTML(true);                                        // Definir formato do email para HTML
+                        $mail->Username   = 'g63329426@outlook.com';                         
+                        $mail->Password   = 'Camilaflaviosilvia';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = 587;
+                        $mail->CharSet = 'UTF-8';
+
+                        $mail->setFrom('g63329426@outlook.com', 'Equipe CamilaFlavioSilvia');
+
+                        $mail->addAddress('frpluz@gmail.com', 'Flavio Ricardo');
+
+                        $mail->isHTML(true);
                         $mail->Subject = 'Vérifiez votre adresse e-mail';
                         $mail->Body    = "Merci de vous être inscrit. Cliquez sur ce lien pour vérifier votre adresse e-mail: 
                         <a href='http://localhost/projet_final_php/config/verify.php?token=$token'>Cliquez ici pour vérifier</a>";
                         $mail->AltBody = "Merci de vous être inscrit. Copiez ce lien pour vérifier votre adresse e-mail: 
                         http://localhost/verify.php?token=$token";
                 
-                        // Enviar o email
+
                         $mail->send();
                     } catch (Exception $e) {
                         $errors[] = "Erreur lors de l'envoi de l'email de vérification: {$mail->ErrorInfo}";
