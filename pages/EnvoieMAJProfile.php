@@ -2,6 +2,10 @@
 session_start();
 require_once '../databasemanager.php';
 
+if (!isset($_SESSION['Authentifie']) || !$_SESSION['Authentifie']) {
+    header("Location: login.php");
+    exit();
+}
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['tbEmail'];
     $statut = $_POST['tbStatut'];
@@ -42,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $databaseManager = new DatabaseManager();
     if ($databaseManager->updateUser($email, $statut, $noEmp, $nom, $prenom, $telM, $telT, $telC)) {
+        $_SESSION['Statut'] = $statut; // Stocker le nouveau statut dans la variable de session
 ?>
 <!DOCTYPE html>
 <html>

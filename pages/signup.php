@@ -66,20 +66,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Création de l'instance de PHPMailer
                     $mail = new PHPMailer(true);
                     try {
-                        // Paramètres SMTP (par ex. SendGrid)
-                        $mail->isSMTP();
-                        $mail->Host = '';
-                        $mail->SMTPAuth = true;
-                        $mail->Username = '';
-                        $mail->Password = '';
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // Activer le chiffrement TLS
-                        $mail->Port = 587;
+                        // Configurações do servidor SMTP (usando SendGrid)
+                        $mail->isSMTP();                               
+                        $mail->Host       = 'smtp.office365.com';               
+                        $mail->SMTPAuth   = true;                     
+                        $mail->Username   = 'g63329426@outlook.com';                         
+                        $mail->Password   = 'Camilaflaviosilvia';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = 587;
+                        $mail->CharSet = 'UTF-8';
 
-                        // Destinataire
-                        $mail->setFrom('camicatmayer@gmail.com', 'App Name');
-                        $mail->addAddress($courriel);
+                        $mail->setFrom('g63329426@outlook.com', 'Equipe CamilaFlavioSilvia');
 
-                        // Contenu de l'email
+                        $mail->addAddress('frpluz@gmail.com', 'Flavio Ricardo');
+
                         $mail->isHTML(true);
                         $mail->Subject = 'Vérifiez votre adresse e-mail';
                         $mail->Body = "Merci de vous être inscrit. Cliquez sur ce lien pour vérifier votre adresse e-mail: 
@@ -147,6 +147,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php if ($success): ?>
                 <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
             <?php endif; ?>
+            <br>
+            <p>Déjà Membre ? <a href="login.php">Connectez vous ici</a>.</p>
         </form>
     </div>
 </body>

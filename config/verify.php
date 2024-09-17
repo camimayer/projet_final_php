@@ -13,9 +13,10 @@ if (isset($_GET['token'])) {
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
+        $newToken = bin2hex(random_bytes(50));
         // Activer le compte de l'utilisateur (mettre à jour le statut)
-        $stmt_update = $dbManager->getConnection()->prepare("UPDATE utilisateurs SET Statut = 1, Token = NULL WHERE Token = ?");
-        $stmt_update->bind_param("s", $token);
+        $stmt_update = $dbManager->getConnection()->prepare("UPDATE utilisateurs SET Statut = 9, Token = ? WHERE Token = ?");
+        $stmt_update->bind_param("ss", $newToken, $token);
         $stmt_update->execute();
 
         echo "Votre compte a été vérifié avec succès!";
