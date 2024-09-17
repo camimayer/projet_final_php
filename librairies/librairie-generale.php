@@ -36,5 +36,4 @@ function er($intEntier, $binExposant = true)
 {
     return $intEntier . ($intEntier == 1 ? ($binExposant ? "<sup>er</sup>" : "er") : "");
 }
-
 ?>
