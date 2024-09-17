@@ -45,7 +45,8 @@
 | xx. function ouvreFichier($strNomFichier, $strMode="L")
 | 33. function post($strNomParametre)
 | 34. function pourcent($dblNombre, $intNbDecimales = 2)
->>>>>35. function renommeFichier($strAncienNom, $strNouveauNom, $binVerifie)
+  35. function renderPagination($currentPage, $totalPages, $limit, $currentTypeOrdre, $currentOrdre, $currentDescription, $currentAuteur, $currentCategorie, $currentDateDebut, $currentDateFin)
+>>>>>36. function renommeFichier($strAncienNom, $strNouveauNom, $binVerifie)
 |-------------------------------------------------------------------------------------|
 */
 
@@ -520,6 +521,26 @@ function fichierExiste($strNomFichier)
 {
    return file_exists($strNomFichier);
 }
+
+/**----------------------------------------------------------------------------------|
+ * Formate un numéro de téléphone dans un format lisible.
+ * Accepte des numéros de 10 chiffres et les formate sous la forme "(XXX) XXX-XXXX".
+ *
+ * @param string $numero Le numéro de téléphone à formater.
+ * @return string Le numéro de téléphone formaté.
+ *----------------------------------------------------------------------------------|**/
+function formaterNumeroTelephone($numero)
+{
+   $numero = preg_replace('/[^0-9]/', '', $numero);
+
+   if (strlen($numero) == 9) {
+      $numeroFormate = '(' . substr($numero, 0, 3) . ') ' . substr($numero, 3, 3) . '-' . substr($numero, 6);
+      return $numeroFormate;
+   } else {
+      return $numero;
+   }
+}
+
 /*
 |-------------------------------------------------------------------------------------|
 | gauche (2018-03-10)
@@ -956,6 +977,39 @@ function renommeFichier($strAncienNom, $strNouveauNom, $binVerifie)
       }
       return rename($strAncienNom, $strNouveauNom);
    }
+}
+/*
+|-------------------------------------------------------------------------------------|
+/* Fonction renderPagination (2024-09-16)
+|-------------------------------------------------------------------------------------|
+*/
+
+function renderPagination($currentPage, $totalPages, $limit, $currentTypeOrdre, $currentOrdre, $currentDescription, $currentAuteur, $currentCategorie, $currentDateDebut, $currentDateFin)
+{
+   $previousPage = $currentPage > 1 ? $currentPage - 1 : 1;
+   $nextPage = $currentPage < $totalPages ? $currentPage + 1 : $totalPages;
+   echo "<div class='pagination-container'>";
+   echo "<div class='pagination'>";
+   // Première page
+   echo '<a class="h3 p-1" href="?page=1&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">«</a>';
+
+   // Page précédente
+   echo '<a class="h3 p-1" href="?page=' . $previousPage . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">‹</a>';
+
+   // Sélecteur de page
+   echo '<select id="ddlPage" onchange="window.location.href=this.value">';
+   for ($i = 1; $i <= $totalPages; $i++) {
+      echo '<option value="?page=' . $i . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '" ' . ($i == $currentPage ? 'selected' : '') . '>' . $i . '</option>';
+   }
+   echo '</select>';
+
+   // Page suivante
+   echo '<a class="h3 p-1" href="?page=' . $nextPage . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">›</a>';
+
+   // Dernière page
+   echo '<a class="h3 p-1" href="?page=' . $totalPages . '&limit=' . $limit . '&TypeOrdre=' . $currentTypeOrdre . '&Ordre=' . $currentOrdre . '&Description=' . $currentDescription . '&Auteur=' . $currentAuteur . '&Categorie=' . $currentCategorie . '&DateDebut=' . $currentDateDebut . '&DateFin=' . $currentDateFin . '">»</a>';
+   echo "</div>";
+   echo "</div>";
 }
 
 ?>
