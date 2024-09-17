@@ -17,22 +17,49 @@
 
         // Vérifie si l'e-mail est enregistré dans le système ou si le champ est vide
         $stmt = $dbManager->getConnection()->prepare("SELECT Courriel, MotDePasse, Nom, Prenom FROM utilisateurs WHERE Courriel = ?");
+        // if ($stmt) {
+        //     $stmt->bind_param("s", $courriel);
+        //     $stmt->execute();
+        //     // $stmt->store_result();
+        //     $result = $stmt->get_result();
+        //     if (!$courriel) {
+        //         $errors[] = "Veuillez entrer une addresse email";
+        //     } elseif ($result->num_rows <= 0) {
+        //         $errors[] = "Cet email est lié à aucun compte !";
+        //         $courriel = null;
+        //     }
+        //     $user = $result->fetch_assoc();
+        //     $_SESSION['Courriel'] = $courriel;
+        //     $motPasse = $user['MotDePasse'];
+        //     $nom      = $user['Nom'];
+        //     $prenom   = $user['Prenom'];
+        //     $stmt->close();
+        // } else {
+        //     $errors[] = "Erreur lors de la préparation de la requête.";
+        // }
+
         if ($stmt) {
             $stmt->bind_param("s", $courriel);
             $stmt->execute();
-            // $stmt->store_result();
             $result = $stmt->get_result();
+    
             if (!$courriel) {
                 $errors[] = "Veuillez entrer une addresse email";
             } elseif ($result->num_rows <= 0) {
                 $errors[] = "Cet email est lié à aucun compte !";
                 $courriel = null;
+            } else {
+                $user = $result->fetch_assoc();
+                if ($user) { // Verifica se $user não é null
+                    $_SESSION['Courriel'] = $courriel;
+                    $motPasse = $user['MotDePasse'];
+                    $nom      = $user['Nom'];
+                    $prenom   = $user['Prenom'];
+                } else {
+                    $errors[] = "Erreur lors de la récupération des informations utilisateur.";
+                }
             }
-            $user = $result->fetch_assoc();
-            $_SESSION['Courriel'] = $courriel;
-            $motPasse = $user['MotDePasse'];
-            $nom      = $user['Nom'];
-            $prenom   = $user['Prenom'];
+    
             $stmt->close();
         } else {
             $errors[] = "Erreur lors de la préparation de la requête.";
