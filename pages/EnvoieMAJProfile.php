@@ -13,15 +13,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nom = $_POST['tbNom'];
     $prenom = $_POST['tbPrenom'];
 
-    $telM = $_POST['tbTelM'];
-    $telT = $_POST['tbTelT'];
-    $telC = $_POST['tbTelC'];
+    $telM = !empty($_POST['tbTelM']) 
+            ? substr($_POST['tbTelM'] . str_repeat(' ', 14), 0, 14) 
+            : str_repeat(' ', 14);
 
+    $telT = !empty($_POST['tbTelT']) 
+            ? substr($_POST['tbTelT'] . str_repeat(' ', 14), 0, 14)
+            : str_repeat(' ', 14);
+            
+    $telC = !empty($_POST['tbTelC']) 
+            ? substr($_POST['tbTelC'] . str_repeat(' ', 14), 0, 14)
+            : str_repeat(' ', 14);
+    
     // Ajoute 'N' à la fin s'il est privé, sinon ajoute P
     if (isset($_POST['cbTelMP'])) {
-        $telM .= 'N';
+        $telM = substr_replace($telM, 'N', 14, 1);
     } else {
-        $telM .= 'P'; 
+        $telM = substr_replace($telM, 'P', 14, 1);
     }
 
     // Ajoute le numéro de Poste après le numéro de téléphone professionnel, s'il est renseigné
@@ -29,19 +37,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $poste = $_POST['tbTelTPoste'];
         $telT .= " #$poste";
     }
-
+    
     // Ajoute 'N' à la fin s'il est privé, sinon ajoute P
     if (isset($_POST['cbTelTP'])) {
-        $telT .= 'N';
+        $telT = substr_replace($telT, 'N', 20, 1); 
     } else {
-        $telT .= 'P';
+        $telT = substr_replace($telT, 'P', 20, 1);
     }
 
     // Ajoute 'N' à la fin s'il est privé, sinon ajoute P
     if (isset($_POST['cbTelCP'])) {
-        $telC .= 'N';
+        $telC = substr_replace($telC, 'N', 14, 1);
     } else {
-        $telC .= 'P';
+        $telC = substr_replace($telC, 'P', 14, 1);
     }
 
     $databaseManager = new DatabaseManager();

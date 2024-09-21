@@ -2,13 +2,14 @@
     require '../librairies/PHPMailer/src/Exception.php';
     require '../librairies/PHPMailer/src/PHPMailer.php';
     require '../librairies/PHPMailer/src/SMTP.php';
+    require_once '../config/localhost.php';
     
     session_start();
     require_once '../databasemanager.php'; // Charger le fichier DatabaseManager
 
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\Exception;
-
+    $pathToCss = "../styles/style.css";
     $pagesTitle = $_SESSION['PagesTitle'];
     $dbManager = new DatabaseManager();
     $errors = [];
@@ -30,7 +31,7 @@
                 $courriel = null;
             } else {
                 $user = $result->fetch_assoc();
-                if ($user) { // Verifica se $user não é null
+                if ($user) { 
                     $_SESSION['Courriel'] = $courriel;
                     $motPasse = $user['MotDePasse'];
                     $nom      = $user['Nom'];
@@ -53,23 +54,23 @@
                 $mail->isSMTP();                               
                 $mail->Host       = 'smtp.office365.com';               
                 $mail->SMTPAuth   = true;                     
-                $mail->Username   = 'g63329426@outlook.com';                         
-                $mail->Password   = 'Camilaflaviosilvia';
+                $mail->Username   = EMAILUSER;
+                $mail->Password   = EMAILPASS;
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port       = 587;
         
                 // Configurer l'encodage
                 $mail->CharSet = 'UTF-8';
 
-                // Destinatário
-                $mail->setFrom('g63329426@outlook.com', 'Equipe CamilaFlavioSilvia');
+                $mail->setFrom(EMAILUSER, 'Equipe CamilaFlavioSilvia');
                 $mail->addAddress($courriel, $nom, $prenom);
 
                 $mail->isHTML(true);
                 $mail->Subject = 'Récupération du mot de passe';
-                $mail->Body    = "Vous trouverez ci-dessous le mot de passe que vous avez demandé. 
-                                  <br>Utilisateur : $courriel 
-                                  <br>Mot de passe:  $motPasse";
+                $mail->Body    = 
+                                "Salut $prenom ! <br> 
+                                  <br> Vous trouverez ci-dessous le mot de passe que vous avez demandé por le système <strong>Les petites annonces GG</strong>. 
+                                  <br>Mot de passe:  <strong>$motPasse</strong>";
                 $mail->AltBody = "Vous trouverez ci-dessous le mot de passe que vous avez demandé pour 
                                 l'utilisateur : $courriel => Mot de passe: $motPasse";
                 $mail->send();
@@ -87,31 +88,32 @@
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="<?php echo $pathToCss; ?>">
     <title><?php echo $pagesTitle; ?></title>
 </head>
 <body>
-    <div class="container-fluid my-4">
-        <div id="divOublie" class="col-4 m-auto">
-            <h1 class="text-center" id="titreConnexion">Récupération du mot de passe</h1>
-            <br>
-            <form id="formOublie" action="forgot_password.php" method="POST">
-                <div class="form-group">
-                    <label for="tbEmail">Email</label>
-                    <input type="email" class="form-control" id="tbEmail" name="tbEmail" placeholder="Email">
-                    <p id="errEmail" class="text-danger font-weight-bold">
-                        <?php foreach ($errors as $error): ?>
-                            <p id="errEmail" class="text-danger font-weight-bold"><?php echo $error; ?></p>
-                        <?php endforeach; ?>
-                    </p>
-                </div>
-                <div class="d-flex">
-                    <button type="submit" class="btn btn-primary" id="btnConnecter">Envoyer le mot de passe</button>
-                </div>
-                <br>
-                <a href="login.php">Retourne à la connexion</a>
-            </form>
-        </div>
+    <div class="container">
+        <h1 class="text-center" id="titreConnexion">Récupération</h1>
+        <h1 class="text-center" id="titreConnexion">du mot de passe</h1>
+        <?php if (!empty($errors)): ?>
+            <div class="errors">
+                <?php foreach ($errors as $error): ?>
+                    <p><?php echo $error; ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <br>
+        <form action="forgot_password.php" method="POST">
+                <label for="tbEmail">Email</label>
+                <input type="email" class="form-control" id="tbEmail" name="tbEmail" placeholder="Email">
+                <button type="submit" class="btn btn-primary">Envoyer le mot de passe</button>
+              <br>
+            <div class="links">
+                <a href="login.php">Page de connexion</a>
+                <a href="signup.php">Créer un compte</a>
+            </div>
+        </form>
     </div>
     <br>
 </body>
