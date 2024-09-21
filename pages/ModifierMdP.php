@@ -3,7 +3,7 @@
     $pagesTitle = $_SESSION['PagesTitle'];
     require_once '../databasemanager.php';
 
-    // Inicializar as variáveis de erro e sucesso
+    // Initialiser les variables d'erreur et de réussite
     $email = $_SESSION['Courriel'];
     $databaseManager = new DatabaseManager();
     $errors = [];
@@ -20,7 +20,7 @@
         $newPassword = trim($_POST['newPassword']);
         $newPasswordConfirm = trim($_POST['newPasswordConfirm']);
        
-        // Validação da senha
+        // Validation du mot de passe
         if (strlen($newPassword) < 5 || strlen($newPassword) > 15) {
             $errors[] = "Le mot de passe doit contenir entre 5 et 15 caractères.";
         } elseif (preg_match('/[A-Z]/', $newPassword)) {

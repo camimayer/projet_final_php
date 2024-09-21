@@ -12,9 +12,10 @@
     $databaseManager = new DatabaseManager();
     $userData = $databaseManager->getUserData($email);
 
-    $stNoTelMaison = isset($userData['NoTelMaison']) ? substr($userData['NoTelMaison'], 0, 14) : '';
-    $stNoTelTravail = isset($userData['NoTelTravail']) ? substr($userData['NoTelTravail'], 0, 14) : '';
-    $stNoTelCellulaire = isset($userData['NoTelCellulaire']) ? substr($userData['NoTelCellulaire'], 0, 14) : '';
+    $stNoTelMaison = !empty($userData['NoTelMaison']) ? trim(substr($userData['NoTelMaison'], 0, 14)) : '';
+    $stNoTelTravail = !empty($userData['NoTelTravail']) ? trim(substr($userData['NoTelTravail'], 0, 14)) : '';
+    $stNoTelCellulaire = !empty($userData['NoTelCellulaire']) ? trim(substr($userData['NoTelCellulaire'], 0, 14)) : '';
+    $isHomePhonePrivate = "N";
 
     // Fonction pour vérifier si le numéro de téléphone est privé
     function isPrivate($phoneNumber) {
@@ -24,10 +25,8 @@
 
     // Fonction pour extraire le numéro de poste
     function getPoste($phoneNumber) {
-        $phoneNumber = isset($phoneNumber) ? $phoneNumber : '';
-        if (strpos($phoneNumber, '#') !== false) {
-            $parts = explode('#', $phoneNumber);
-            return substr($parts[1], 0, 4); 
+        if (!empty($phoneNumber)) {
+            return substr($phoneNumber, 16, 4); 
         }
         return '';
     }

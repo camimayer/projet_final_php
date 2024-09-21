@@ -66,19 +66,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Création de l'instance de PHPMailer
                     $mail = new PHPMailer(true);
                     try {
-                        // Configurações do servidor SMTP (usando SendGrid)
+                        // Paramètres du serveur SMTP
                         $mail->isSMTP();                               
                         $mail->Host       = 'smtp.office365.com';               
                         $mail->SMTPAuth   = true;                     
-                        $mail->Username   = 'g63329426@outlook.com';                         
-                        $mail->Password   = 'Camilaflaviosilvia';
+                        $mail->Username   = EMAILUSER;
+                        $mail->Password   = EMAILPASS;
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port       = 587;
                         $mail->CharSet = 'UTF-8';
 
-                        $mail->setFrom('g63329426@outlook.com', 'Equipe CamilaFlavioSilvia');
+                        $mail->setFrom(EMAILUSER, 'Equipe CamilaFlavioSilvia');
 
-                        $mail->addAddress('frpluz@gmail.com', 'Flavio Ricardo');
+                        $mail->addAddress($courriel);
 
                         $mail->isHTML(true);
                         $mail->Subject = 'Vérifiez votre adresse e-mail';
@@ -148,7 +148,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p class="success">Inscription réussie! Un e-mail de vérification a été envoyé.</p>
             <?php endif; ?>
             <br>
-            <p>Déjà Membre ? <a href="login.php">Connectez vous ici</a>.</p>
+            <p>Déjà Membre ?</p>
+            <div class="links">
+                <a href="login.php">Connectez vous ici</a>
+                <a href="forgot_password.php">Mot de passe oublié</a>
+            </div>
         </form>
     </div>
 </body>
